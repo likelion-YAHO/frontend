@@ -13,16 +13,17 @@ import ucycleSel from "../../assets/images/icons/SelectedUcycle_icon.svg";
 import ucycleUnsel from "../../assets/images/icons/UnselectedUcycle_icon.svg";
 
 const FooterContainer = styled.footer`
-  position: fixed;
-  left: 50%;
+  position: absolute;
+  left: 0;
   bottom: 0;
-  transform: translateX(-50%);
 
   width: 100%;
-  max-width: 390px;
   height: 86px;
 
   z-index: 100;
+
+  transform: translateY(${({ $hidden }) => ($hidden ? "100%" : "0")});
+  transition: transform 0.3s ease;
 `;
 
 const Nav = styled.nav`
@@ -77,11 +78,11 @@ const NavLabel = styled.span`
   color: ${({ $active }) => ($active ? "#141414" : "#727272")};
 `;
 
-export default function Footer() {
+export default function Footer({ $hidden }) {
   const [selected, setSelected] = useState("home");
 
   return (
-    <FooterContainer>
+    <FooterContainer $hidden={$hidden}>
       <Nav>
         {/* 스냅 */}
         <NavButton onClick={() => setSelected("snap")}>
