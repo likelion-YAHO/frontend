@@ -13,12 +13,11 @@ const StyledButton = styled.button`
   align-items: center;
   justify-content: center;
 
-  border: 1px solid
-  border-color: #e3e3e3;
+  border: 1px solid #e3e3e3;
   border-radius: 2px;
 
   background-color: ${({ $variant }) =>
-    $variant === "black" ? "#141414" : "#fafafa"};
+    $variant === "black" ? "#141414" : "#ffffff"};
 
   color: ${({ $variant }) => ($variant === "black" ? "#fafafa" : "#141414")};
 
