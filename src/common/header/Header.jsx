@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import CommonButton from "../../components/button/CommonButton";
+import CommonButton from "../../components/button/IconButton";
 
 import menuIcon from "../../assets/images/icons/Menu_icon.svg";
 import logo from "../../assets/images/icons/Mcm_icon.svg";
