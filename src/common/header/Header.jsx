@@ -7,13 +7,11 @@ import logo from "../../assets/images/icons/Mcm_icon.svg";
 import alarmIcon from "../../assets/images/icons/UnalertBell_icon.svg";
 
 const HeaderContainer = styled.header`
-  position: fixed;
+  position: absolute;
   top: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
 
   width: 100%;
-  max-width: 390px;
   height: 44px;
 
   display: flex;
@@ -26,6 +24,9 @@ const HeaderContainer = styled.header`
   background: #ffffff;
 
   z-index: 100;
+
+  transform: translateY(${({ $hidden }) => ($hidden ? "-100%" : "0")});
+  transition: transform 0.3s ease;
 `;
 
 const HeaderButton = styled(CommonButton)`
@@ -59,9 +60,9 @@ const Logo = styled.img`
   object-fit: contain;
 `;
 
-export default function Header() {
+export default function Header({ $hidden }) {
   return (
-    <HeaderContainer>
+    <HeaderContainer $hidden={$hidden}>
       <HeaderButton>
         <Icon src={menuIcon} alt="메뉴" />
       </HeaderButton>
