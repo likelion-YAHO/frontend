@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 
-import CommonButton from "../../components/button/CommonButton";
+import CommonButton from "../../components/button/IconButton";
 
 import snapSel from "../../assets/images/icons/SelectedSnap_icon.svg";
 import snapUnsel from "../../assets/images/icons/UnselectedSnap_icon.svg";
