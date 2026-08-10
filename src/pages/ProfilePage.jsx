@@ -100,7 +100,7 @@ const AlarmRow = styled.div`
 const AlarmText = styled.span`
   color: #141414;
 
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 400;
 `;
 
@@ -152,11 +152,26 @@ export default function ProfilePage() {
       <AccordionArea>
         <Accordion title="계정 정보 변경">
           <InputArea>
-            <TextInput placeholder="이름" width="100%" height="44px" />
+            <TextInput
+              placeholder="이름"
+              width="100%"
+              height="34px"
+              fontSize="12px"
+            />
 
-            <TextInput placeholder="아이디" width="100%" height="44px" />
+            <TextInput
+              placeholder="아이디"
+              width="100%"
+              height="34px"
+              fontSize="12px"
+            />
 
-            <TextInput placeholder="비밀번호" width="100%" height="44px" />
+            <TextInput
+              placeholder="비밀번호"
+              width="100%"
+              height="34px"
+              fontSize="12px"
+            />
           </InputArea>
         </Accordion>
 
