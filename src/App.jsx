@@ -5,17 +5,53 @@ import SplashPage from "./pages/SplashPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterProductPage from "./pages/Upcycle/RegisterProductPage";
 import ProfilePage from "./pages/ProfilePage";
+import PageTransition from "./components/pageTransition/PageTransition";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<SplashPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/upcycle" element={<RegisterProductPage />} />
+        <Route
+          path="/"
+          element={
+            <PageTransition>
+              <SplashPage />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <PageTransition>
+              <LoginPage />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/upcycle"
+          element={
+            <PageTransition>
+              <RegisterProductPage />
+            </PageTransition>
+          }
+        />
         <Route element={<RootLayout />}>
-          <Route path="/main" element={<MainPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
+          <Route
+            path="/main"
+            element={
+              <PageTransition>
+                <MainPage />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PageTransition>
+                <ProfilePage />
+              </PageTransition>
+            }
+          />
         </Route>
       </Routes>
     </BrowserRouter>
