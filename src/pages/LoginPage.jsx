@@ -31,6 +31,13 @@ const Logo = styled.img`
   margin: 0 auto 24px;
 `;
 
+const LoginFormWrapper = styled.form`
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+`;
+
 const LoginForm = styled.div`
   width: 100%;
 
@@ -179,40 +186,47 @@ export default function LoginPage() {
     setIsLoginError(true);
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleLogin();
+  };
+
   return (
     <Page>
       <Logo src={logo} alt="MCM" />
 
-      <LoginForm>
-        <TextInput
-          width="318px"
-          height="44px"
-          fontSize="14px"
-          placeholder="아이디"
-          value={loginId}
-          onChange={(e) => setLoginId(e.target.value)}
-        />
+      <LoginFormWrapper onSubmit={handleSubmit}>
+        <LoginForm>
+          <TextInput
+            width="318px"
+            height="44px"
+            fontSize="14px"
+            placeholder="아이디"
+            value={loginId}
+            onChange={(e) => setLoginId(e.target.value)}
+          />
 
-        <TextInput
-          width="318px"
-          height="44px"
-          fontSize="14px"
-          type="password"
-          placeholder="비밀번호"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </LoginForm>
+          <TextInput
+            width="318px"
+            height="44px"
+            fontSize="14px"
+            type="password"
+            placeholder="비밀번호"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </LoginForm>
 
-      <ButtonGroup>
-        <IntentButton variant="black" height="44px" onClick={handleLogin}>
-          로그인
-        </IntentButton>
+        <ButtonGroup>
+          <IntentButton variant="black" height="44px" type="submit">
+            로그인
+          </IntentButton>
 
-        <IntentButton variant="white" height="44px">
-          회원 가입
-        </IntentButton>
-      </ButtonGroup>
+          <IntentButton variant="white" height="44px" type="button">
+            회원 가입
+          </IntentButton>
+        </ButtonGroup>
+      </LoginFormWrapper>
 
       <PasswordFind type="button">비밀번호를 잊으셨나요?</PasswordFind>
 
