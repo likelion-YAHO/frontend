@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 import CommonButton from "../../components/button/IconButton";
@@ -79,33 +80,53 @@ const NavLabel = styled.span`
 `;
 
 export default function Footer({ $hidden }) {
+  const navigate = useNavigate();
   const [selected, setSelected] = useState("home");
+  const [hovered, setHovered] = useState(null);
+
+  const handleUpcycleClick = () => {
+    setSelected("ucycle");
+    navigate("/upcycle");
+  };
+
+  const isSnapActive = selected === "snap" || hovered === "snap";
+  const isHomeActive = selected === "home" || hovered === "home";
+  const isUcycleActive = selected === "ucycle" || hovered === "ucycle";
 
   return (
     <FooterContainer $hidden={$hidden}>
       <Nav>
         {/* 스냅 */}
-        <NavButton onClick={() => setSelected("snap")}>
-          <NavIcon src={selected === "snap" ? snapSel : snapUnsel} alt="스냅" />
-
-          <NavLabel $active={selected === "snap"}>스냅</NavLabel>
+        <NavButton
+          onClick={() => setSelected("snap")}
+          onMouseEnter={() => setHovered("snap")}
+          onMouseLeave={() => setHovered(null)}
+        >
+          <NavIcon src={isSnapActive ? snapSel : snapUnsel} alt="스냅" />
+          <NavLabel $active={isSnapActive}>스냅</NavLabel>
         </NavButton>
 
         {/* 홈 */}
-        <NavButton onClick={() => setSelected("home")}>
-          <NavIcon src={selected === "home" ? homeSel : homeUnsel} alt="홈" />
-
-          <NavLabel $active={selected === "home"}>홈</NavLabel>
+        <NavButton
+          onClick={() => setSelected("home")}
+          onMouseEnter={() => setHovered("home")}
+          onMouseLeave={() => setHovered(null)}
+        >
+          <NavIcon src={isHomeActive ? homeSel : homeUnsel} alt="홈" />
+          <NavLabel $active={isHomeActive}>홈</NavLabel>
         </NavButton>
 
         {/* 업사이클 */}
-        <NavButton onClick={() => setSelected("ucycle")}>
+        <NavButton
+          onClick={handleUpcycleClick}
+          onMouseEnter={() => setHovered("ucycle")}
+          onMouseLeave={() => setHovered(null)}
+        >
           <NavIcon
-            src={selected === "ucycle" ? ucycleSel : ucycleUnsel}
+            src={isUcycleActive ? ucycleSel : ucycleUnsel}
             alt="업사이클"
           />
-
-          <NavLabel $active={selected === "ucycle"}>업사이클</NavLabel>
+          <NavLabel $active={isUcycleActive}>업사이클</NavLabel>
         </NavButton>
       </Nav>
     </FooterContainer>
