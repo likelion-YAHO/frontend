@@ -1,6 +1,7 @@
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useOutlet, useLocation, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
+import { AnimatePresence, motion } from "framer-motion";
 
 import Header from "../common/header/Header";
 import SubHeader from "../common/header/SubHeader";
@@ -58,6 +59,18 @@ const Main = styled.main`
   }
 `;
 
+const PageSlide = styled(motion.div)`
+  position: absolute;
+  top: 44px;
+  left: 0;
+
+  width: 100%;
+  min-height: calc(100% - 44px);
+
+  overflow: hidden;
+  will-change: transform;
+`;
+
 const ModalButtonArea = styled.div`
   width: 100%;
 
@@ -70,6 +83,7 @@ const ModalButtonArea = styled.div`
 export default function RootLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const element = useOutlet();
 
   const mainRef = useRef(null);
   const prevScrollTop = useRef(0);
@@ -78,6 +92,7 @@ export default function RootLayout() {
 
   // 사이드 메뉴
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [pendingNavigate, setPendingNavigate] = useState(null);
 
   // 로그아웃 확인 모달
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -118,6 +133,18 @@ export default function RootLayout() {
     setIsMenuOpen(false);
   };
 
+  const handleMenuNavigate = (path) => {
+    setIsMenuOpen(false);
+    setPendingNavigate(path);
+  };
+
+  const handleMenuExitComplete = () => {
+    if (pendingNavigate) {
+      navigate(pendingNavigate);
+      setPendingNavigate(null);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("user");
 
@@ -136,24 +163,40 @@ export default function RootLayout() {
         {isProfilePage ? (
           <SubHeader title="프로필 관리" onBack={() => navigate("/main")} />
         ) : (
-          <Header $hidden={navHidden} onMenuClick={() => setIsMenuOpen(true)} />
+          <Header
+            $hidden={navHidden}
+            onMenuClick={() => setIsMenuOpen((prev) => !prev)}
+          />
         )}
 
         <Main ref={mainRef} $hideFooter={isProfilePage}>
-          <Outlet />
+          <AnimatePresence>
+            <PageSlide
+              key={location.pathname}
+              initial={{ x: isProfilePage ? "100%" : 0 }}
+              animate={{ x: 0 }}
+              exit={{ x: isProfilePage ? "100%" : "-100%" }}
+              transition={{ type: "spring", stiffness: 260, damping: 30, mass: 0.9 }}
+            >
+              {element}
+            </PageSlide>
+          </AnimatePresence>
         </Main>
 
         {/* 프로필 페이지에서는 Footer 숨김 */}
         {!isProfilePage && <Footer $hidden={navHidden} />}
 
         {/* 사이드 메뉴 */}
-        {isMenuOpen && !isProfilePage && (
-          <SideMenu
-            user={user}
-            onClose={() => setIsMenuOpen(false)}
-            onLogoutClick={handleLogoutClick}
-          />
-        )}
+        <AnimatePresence onExitComplete={handleMenuExitComplete}>
+          {isMenuOpen && !isProfilePage && (
+            <SideMenu
+              user={user}
+              onClose={() => setIsMenuOpen(false)}
+              onNavigate={handleMenuNavigate}
+              onLogoutClick={handleLogoutClick}
+            />
+          )}
+        </AnimatePresence>
 
         {/* 로그아웃 확인 모달 */}
         {isLogoutModalOpen && (

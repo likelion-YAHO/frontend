@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 import IconButton from "../../components/button/IconButton";
 import ProfileButton from "../../components/button/ActionButton";
@@ -8,7 +8,7 @@ import profileIcon from "../../assets/images/icons/profile_icon.svg";
 import logoutIcon from "../../assets/images/icons/logout_icon.svg";
 import rightArrow from "../../assets/images/icons/rightArrow.svg";
 
-const Overlay = styled.div`
+const Overlay = styled(motion.div)`
   position: absolute;
   top: 44px;
   left: 0;
@@ -20,7 +20,7 @@ const Overlay = styled.div`
   z-index: 200;
 `;
 
-const MenuContainer = styled.aside`
+const MenuContainer = styled(motion.aside)`
   position: absolute;
   top: 44px;
   left: 0;
@@ -147,12 +147,9 @@ const ArrowIcon = styled.img`
   object-fit: contain;
 `;
 
-export default function SideMenu({ user, onClose, onLogoutClick }) {
-  const navigate = useNavigate();
-
+export default function SideMenu({ user, onClose, onNavigate, onLogoutClick }) {
   const handleNavigate = (path) => {
-    onClose();
-    navigate(path);
+    onNavigate(path);
   };
 
   const handleExternalLink = (url) => {
@@ -161,9 +158,18 @@ export default function SideMenu({ user, onClose, onLogoutClick }) {
 
   return (
     <>
-      <Overlay onClick={onClose} />
+      <Overlay
+        onClick={onClose}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, transition: { duration: 0.15, ease: "easeOut" } }}
+        exit={{ opacity: 0, transition: { duration: 0.1, ease: "easeIn" } }}
+      />
 
-      <MenuContainer>
+      <MenuContainer
+        initial={{ x: "-100%" }}
+        animate={{ x: 0, transition: { duration: 0.18, ease: "easeOut" } }}
+        exit={{ x: "-100%", transition: { duration: 0.12, ease: "easeIn" } }}
+      >
         <ProfileArea>
           <UserInfo>
             <ProfileIcon src={profileIcon} alt="프로필" />
