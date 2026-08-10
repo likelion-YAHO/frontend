@@ -165,18 +165,17 @@ export default function LoginPage() {
   const [isLoginError, setIsLoginError] = useState(false);
 
   const handleLogin = () => {
-    // 입력한 아이디와 비밀번호가 모두 일치하는 사용자 검색
     const matchedUser = mockUsers.find(
       (user) => user.loginId === loginId && user.password === password,
     );
 
-    // 로그인 성공
     if (matchedUser) {
+      localStorage.setItem("user", JSON.stringify(matchedUser));
+
       navigate("/main");
       return;
     }
 
-    // 로그인 실패
     setIsLoginError(true);
   };
 
