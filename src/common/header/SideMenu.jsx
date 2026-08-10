@@ -1,4 +1,5 @@
 import styled from "styled-components";
+// import { useNavigate } from "react-router-dom";
 
 import IconButton from "../../components/button/IconButton";
 import ProfileButton from "../../components/button/ActionButton";
@@ -147,6 +148,18 @@ const ArrowIcon = styled.img`
 `;
 
 export default function SideMenu({ user, onClose, onLogoutClick }) {
+  // 추후 내부 페이지 이동 시
+  /*const navigate = useNavigate();
+
+  const handleNavigate = (path) => {
+    onClose();
+    navigate(path);
+  };*/
+
+  const handleExternalLink = (url) => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <>
       <Overlay onClick={onClose} />
@@ -184,7 +197,14 @@ export default function SideMenu({ user, onClose, onLogoutClick }) {
             <ArrowIcon src={rightArrow} alt="" />
           </MenuItem>
 
-          <MenuItem type="button">
+          <MenuItem
+            type="button"
+            onClick={() =>
+              handleExternalLink(
+                "https://kr.mcmworldwide.com/ko_KR/heritage-edit",
+              )
+            }
+          >
             MCM 소개
             <ArrowIcon src={rightArrow} alt="" />
           </MenuItem>
@@ -194,12 +214,26 @@ export default function SideMenu({ user, onClose, onLogoutClick }) {
             <ArrowIcon src={rightArrow} alt="" />
           </MenuItem>
 
-          <MenuItem type="button">
+          <MenuItem
+            type="button"
+            onClick={() =>
+              handleExternalLink(
+                "https://kr.mcmworldwide.com/ko_KR/%EC%8B%A0%EC%83%81%ED%92%88/autumn-winter",
+              )
+            }
+          >
             2026 F/W 컬렉션 둘러보기
             <ArrowIcon src={rightArrow} alt="" />
           </MenuItem>
 
-          <MenuItem type="button">
+          <MenuItem
+            type="button"
+            onClick={() =>
+              handleExternalLink(
+                "https://kr.mcmworldwide.com/ko_KR/%EC%8B%A0%EC%83%81%ED%92%88/mcm-x-dj-khaled-x-we-the-best",
+              )
+            }
+          >
             MCM x DJ Khaled x We the Best
             <ArrowIcon src={rightArrow} alt="" />
           </MenuItem>

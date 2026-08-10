@@ -1,10 +1,12 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 
 import Header from "../common/header/Header";
 import Footer from "../common/footer/Footer";
 import SideMenu from "../common/header/SideMenu";
+import Modal from "../components/modal/Modal";
+import IntentButton from "../components/button/IntentButton";
 
 const Screen = styled.div`
   width: 100%;
@@ -53,14 +55,30 @@ const Main = styled.main`
   }
 `;
 
+const ModalButtonArea = styled.div`
+  width: 100%;
+
+  margin-top: 20px;
+
+  display: flex;
+  gap: 4px;
+`;
+
 export default function RootLayout() {
+  const navigate = useNavigate();
+
   const mainRef = useRef(null);
-
-  const [navHidden, setNavHidden] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   const prevScrollTop = useRef(0);
 
+  const [navHidden, setNavHidden] = useState(false);
+
+  // 사이드 메뉴
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // 로그아웃 확인 모달
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  // 로그인한 사용자
   const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
@@ -88,6 +106,23 @@ export default function RootLayout() {
     return () => el.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleLogoutClick = () => {
+    setIsLogoutModalOpen(true);
+
+    setIsMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+
+    setIsLogoutModalOpen(false);
+    setIsMenuOpen(false);
+
+    navigate("/login", {
+      replace: true,
+    });
+  };
+
   return (
     <Screen>
       <Frame>
@@ -100,7 +135,36 @@ export default function RootLayout() {
         <Footer $hidden={navHidden} />
 
         {isMenuOpen && (
-          <SideMenu user={user} onClose={() => setIsMenuOpen(false)} />
+          <SideMenu
+            user={user}
+            onClose={() => setIsMenuOpen(false)}
+            onLogoutClick={handleLogoutClick}
+          />
+        )}
+
+        {/* 로그아웃 확인 모달 */}
+        {isLogoutModalOpen && (
+          <Modal title="로그아웃" description="로그아웃 하시겠습니까?">
+            <ModalButtonArea>
+              <IntentButton
+                variant="white"
+                width="152px"
+                height="34px"
+                onClick={handleLogout}
+              >
+                네
+              </IntentButton>
+
+              <IntentButton
+                variant="black"
+                width="152px"
+                height="34px"
+                onClick={() => setIsLogoutModalOpen(false)}
+              >
+                아니요
+              </IntentButton>
+            </ModalButtonArea>
+          </Modal>
         )}
       </Frame>
     </Screen>
