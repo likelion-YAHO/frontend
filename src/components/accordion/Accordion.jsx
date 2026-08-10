@@ -13,7 +13,7 @@ const AccordionHeader = styled.button`
   width: 100%;
   height: 48px;
 
-  padding: 12 20px;
+  padding: 12px 20px;
   box-sizing: border-box;
 
   display: flex;
@@ -40,7 +40,7 @@ const ArrowIcon = styled.img`
 const AccordionContent = styled.div`
   width: 100%;
 
-  padding: 12px 32px 42px;
+  padding: 20px 20px;
   box-sizing: border-box;
 
   background: #f6f6f6;
