@@ -3,15 +3,15 @@ import RootLayout from "./layout/RootLayout";
 import MainPage from "./pages/MainPage/MainPage";
 import SplashPage from "./pages/SplashPage";
 import LoginPage from "./pages/LoginPage";
+import RegisterProductPage from "./pages/Upcycle/RegisterProductPage";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<SplashPage />} />
-
         <Route path="/login" element={<LoginPage />} />
-
+        <Route path="/upcycle" element={<RegisterProductPage />} />
         <Route element={<RootLayout />}>
           <Route path="/main" element={<MainPage />} />
         </Route>
@@ -20,4 +20,4 @@ function App() {
   );
 }
 
-export default App;
+export default App; 
