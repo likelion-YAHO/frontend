@@ -1,5 +1,5 @@
 import styled from "styled-components";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import IconButton from "../../components/button/IconButton";
 import ProfileButton from "../../components/button/ActionButton";
@@ -148,13 +148,12 @@ const ArrowIcon = styled.img`
 `;
 
 export default function SideMenu({ user, onClose, onLogoutClick }) {
-  // 추후 내부 페이지 이동 시
-  /*const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleNavigate = (path) => {
     onClose();
     navigate(path);
-  };*/
+  };
 
   const handleExternalLink = (url) => {
     window.open(url, "_blank", "noopener,noreferrer");
@@ -181,7 +180,11 @@ export default function SideMenu({ user, onClose, onLogoutClick }) {
           </UserInfo>
 
           <ProfileButtonArea>
-            <ProfileButton width="138px" height="30px">
+            <ProfileButton
+              width="138px"
+              height="30px"
+              onClick={() => handleNavigate("/profile")}
+            >
               프로필 관리
             </ProfileButton>
 
