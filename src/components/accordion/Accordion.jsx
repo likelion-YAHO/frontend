@@ -40,7 +40,7 @@ const ArrowIcon = styled.img`
 const AccordionContent = styled.div`
   width: 100%;
 
-  padding: 12px 16px 20px;
+  padding: 12px 32px 42px;
   box-sizing: border-box;
 
   background: #f6f6f6;

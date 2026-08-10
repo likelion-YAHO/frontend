@@ -1,10 +1,12 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 
 import Header from "../common/header/Header";
+import SubHeader from "../common/header/SubHeader";
 import Footer from "../common/footer/Footer";
 import SideMenu from "../common/header/SideMenu";
+
 import Modal from "../components/modal/Modal";
 import IntentButton from "../components/button/IntentButton";
 
@@ -43,7 +45,8 @@ const Main = styled.main`
   -webkit-overflow-scrolling: touch;
 
   padding-top: 44px;
-  padding-bottom: 86px;
+
+  padding-bottom: ${({ $hideFooter }) => ($hideFooter ? "0" : "86px")};
 
   box-sizing: border-box;
 
@@ -65,6 +68,7 @@ const ModalButtonArea = styled.div`
 `;
 
 export default function RootLayout() {
+  const location = useLocation();
   const navigate = useNavigate();
 
   const mainRef = useRef(null);
@@ -80,6 +84,9 @@ export default function RootLayout() {
 
   // 로그인한 사용자
   const user = JSON.parse(localStorage.getItem("user"));
+
+  // 현재 프로필 관리 페이지인지 확인
+  const isProfilePage = location.pathname === "/profile";
 
   useEffect(() => {
     const el = mainRef.current;
@@ -108,7 +115,6 @@ export default function RootLayout() {
 
   const handleLogoutClick = () => {
     setIsLogoutModalOpen(true);
-
     setIsMenuOpen(false);
   };
 
@@ -126,15 +132,22 @@ export default function RootLayout() {
   return (
     <Screen>
       <Frame>
-        <Header $hidden={navHidden} onMenuClick={() => setIsMenuOpen(true)} />
+        {/* 페이지에 따라 Header 변경 */}
+        {isProfilePage ? (
+          <SubHeader title="프로필 관리" onBack={() => navigate("/main")} />
+        ) : (
+          <Header $hidden={navHidden} onMenuClick={() => setIsMenuOpen(true)} />
+        )}
 
-        <Main ref={mainRef}>
+        <Main ref={mainRef} $hideFooter={isProfilePage}>
           <Outlet />
         </Main>
 
-        <Footer $hidden={navHidden} />
+        {/* 프로필 페이지에서는 Footer 숨김 */}
+        {!isProfilePage && <Footer $hidden={navHidden} />}
 
-        {isMenuOpen && (
+        {/* 사이드 메뉴 */}
+        {isMenuOpen && !isProfilePage && (
           <SideMenu
             user={user}
             onClose={() => setIsMenuOpen(false)}
