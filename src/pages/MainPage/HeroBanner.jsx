@@ -12,6 +12,8 @@ const Wrapper = styled.section`
   position: relative;
   width: 100%;
   overflow: hidden;
+  transform: translateZ(0);
+  isolation: isolate;
 `;
 
 const Track = styled.div`
@@ -109,7 +111,7 @@ const IndicatorButton = styled.button`
 
 function HeroBanner() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [animate, setAnimate] = useState(true);
+  const [animate, setAnimate] = useState(false);
   const isTransitioning = useRef(false);
 
   const handleNext = () => {
