@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import CommonButton from "../../components/button/IconButton";
+import IconButton from "../../components/button/IconButton";
 
 import menuIcon from "../../assets/images/icons/Menu_icon.svg";
 import logo from "../../assets/images/icons/Mcm_icon.svg";
@@ -26,10 +26,11 @@ const HeaderContainer = styled.header`
   z-index: 100;
 
   transform: translateY(${({ $hidden }) => ($hidden ? "-100%" : "0")});
+
   transition: transform 0.3s ease;
 `;
 
-const HeaderButton = styled(CommonButton)`
+const HeaderButton = styled(IconButton)`
   width: 32px;
   height: 32px;
 
@@ -60,16 +61,16 @@ const Logo = styled.img`
   object-fit: contain;
 `;
 
-export default function Header({ $hidden }) {
+export default function Header({ $hidden, onMenuClick }) {
   return (
     <HeaderContainer $hidden={$hidden}>
-      <HeaderButton>
+      <HeaderButton type="button" onClick={onMenuClick}>
         <Icon src={menuIcon} alt="메뉴" />
       </HeaderButton>
 
       <Logo src={logo} alt="MCM" />
 
-      <HeaderButton>
+      <HeaderButton type="button">
         <Icon src={alarmIcon} alt="알림" />
       </HeaderButton>
     </HeaderContainer>
