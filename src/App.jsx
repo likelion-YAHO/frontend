@@ -4,6 +4,7 @@ import MainPage from "./pages/MainPage/MainPage";
 import SplashPage from "./pages/SplashPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterProductPage from "./pages/Upcycle/RegisterProductPage";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   return (
@@ -14,10 +15,11 @@ function App() {
         <Route path="/upcycle" element={<RegisterProductPage />} />
         <Route element={<RootLayout />}>
           <Route path="/main" element={<MainPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Route>
       </Routes>
     </BrowserRouter>
   );
 }
 
-export default App; 
+export default App;
