@@ -15,8 +15,8 @@ const SwatchButton = styled.button`
 
   border: 1px solid ${({ $selected }) => ($selected ? "#141414" : "#e3e3e3")};
   border-radius: 2px;
-  outline: none;  
-  
+  outline: none;
+
   overflow: hidden;
 
   cursor: pointer;
