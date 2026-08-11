@@ -55,14 +55,21 @@ const Title = styled.h1`
   font-weight: 600;
 `;
 
-export default function SubHeader({ title, onBack }) {
+const Logo = styled.img`
+  width: auto;
+  height: 26px;
+
+  object-fit: contain;
+`;
+
+export default function SubHeader({ title, logo, onBack }) {
   return (
     <HeaderContainer>
       <BackButton type="button" onClick={onBack}>
         <BackIcon src={backIcon} alt="뒤로가기" />
       </BackButton>
 
-      <Title>{title}</Title>
+      {logo ? <Logo src={logo} alt="MCM" /> : <Title>{title}</Title>}
     </HeaderContainer>
   );
 }

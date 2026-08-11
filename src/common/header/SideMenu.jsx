@@ -149,6 +149,7 @@ const ArrowIcon = styled.img`
 
 export default function SideMenu({ user, onClose, onNavigate, onLogoutClick }) {
   const handleNavigate = (path) => {
+    onClose();
     onNavigate(path);
   };
 
@@ -161,7 +162,10 @@ export default function SideMenu({ user, onClose, onNavigate, onLogoutClick }) {
       <Overlay
         onClick={onClose}
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1, transition: { duration: 0.15, ease: "easeOut" } }}
+        animate={{
+          opacity: 1,
+          transition: { duration: 0.15, ease: "easeOut" },
+        }}
         exit={{ opacity: 0, transition: { duration: 0.1, ease: "easeIn" } }}
       />
 
@@ -194,7 +198,11 @@ export default function SideMenu({ user, onClose, onNavigate, onLogoutClick }) {
               프로필 관리
             </ProfileButton>
 
-            <ProfileButton width="138px" height="30px">
+            <ProfileButton
+              width="138px"
+              height="30px"
+              onClick={() => handleNavigate("/orders")}
+            >
               주문 내역
             </ProfileButton>
           </ProfileButtonArea>
