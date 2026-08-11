@@ -44,10 +44,6 @@ const Page = styled.div`
   background: #ffffff;
 `;
 
-const PhotoArea = styled.div`
-  position: relative;
-`;
-
 const FieldGroup = styled.div`
   margin-top: 20px;
   display: flex;
@@ -69,6 +65,10 @@ const FieldLabel = styled.p`
   line-height: 26px;
 `;
 
+const PhotoArea = styled.div`
+  position: relative;
+`;
+
 const pulse = keyframes`
   0%, 100% {
     opacity: 1;
@@ -88,6 +88,7 @@ const AnalyzeButtonArea = styled.div`
 const PulsingIntentButton = styled(IntentButton)`
   animation: ${({ $analyzing }) => ($analyzing ? pulse : "none")} 1.1s ease-in-out
     infinite;
+  opacity: ${({ $looksDisabled }) => ($looksDisabled ? 0.5 : 1)};
 `;
 
 export default function RegisterProductPage() {
@@ -96,10 +97,15 @@ export default function RegisterProductPage() {
   const [category, setCategory] = useState("");
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [photos, setPhotos] = useState([]);
-  const [showLimitToast, setShowLimitToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const handleAnalyze = () => {
+    if (!category) {
+      setToastMessage("카테고리를 선택해주세요");
+      return;
+    }
+
     setIsAnalyzing(true);
 
     // TODO: 백엔드 AI 분석 API 연동 시 아래 setTimeout을 실제 API 호출로 교체
@@ -118,7 +124,9 @@ export default function RegisterProductPage() {
         <PhotoArea>
           <PhotoUploader
             onPhotosChange={setPhotos}
-            onLimitExceeded={() => setShowLimitToast(true)}
+            onLimitExceeded={() =>
+              setToastMessage("최대 5장까지 등록할 수 있어요")
+            }
           />
           <LoadingOverlay visible={isAnalyzing} />
         </PhotoArea>
@@ -147,15 +155,16 @@ export default function RegisterProductPage() {
             onClick={handleAnalyze}
             disabled={photos.length === 0 || isAnalyzing}
             $analyzing={isAnalyzing}
+            $looksDisabled={photos.length === 0 || isAnalyzing || !category}
           >
             {isAnalyzing ? "AI 분석 중 …" : "AI 분석"}
           </PulsingIntentButton>
         </AnalyzeButtonArea>
 
         <LimitToast
-          visible={showLimitToast}
-          message="최대 5장까지 등록할 수 있어요"
-          onHide={() => setShowLimitToast(false)}
+          visible={!!toastMessage}
+          message={toastMessage}
+          onHide={() => setToastMessage(null)}
         />
       </Page>
     </Screen>

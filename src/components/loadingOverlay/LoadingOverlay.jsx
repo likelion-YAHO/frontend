@@ -25,40 +25,15 @@ const Overlay = styled.div`
   z-index: 10;
 `;
 
-const LoopWrapper = styled.div`
-  width: 70px;
-  height: 70px;
-  position: relative;
+const Spinner = styled.div`
+  width: 44px;
+  height: 44px;
+
+  border: 3.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
 
   animation: ${spin} 1s linear infinite;
-`;
-
-// Figma "Loop" 컴포넌트 - 얇은 원형 + 진한 부분 호(arc)가 겹쳐 도는 스피너
-// (Figma dev mode 코드에 border-radius가 누락되어 있어 50%로 보정함)
-const StyledVector = styled.div`
-  width: 30px;
-  height: 30px;
-  left: 40px;
-  top: 10px;
-  position: absolute;
-
-  border-radius: 50%;
-  outline: 3.5px var(--white, white) solid;
-  outline-offset: -1.75px;
-`;
-
-const StyledVector01 = styled.div`
-  width: 60px;
-  height: 60px;
-  left: 10px;
-  top: 10px;
-  position: absolute;
-
-  opacity: 0.3;
-
-  border-radius: 50%;
-  outline: 3.5px var(--white, white) solid;
-  outline-offset: -1.75px;
 `;
 
 const LoadingText = styled.p`
@@ -74,10 +49,7 @@ export default function LoadingOverlay({ visible }) {
 
   return (
     <Overlay>
-      <LoopWrapper>
-        <StyledVector />
-        <StyledVector01 />
-      </LoopWrapper>
+      <Spinner />
       <LoadingText>AI loading ···</LoadingText>
     </Overlay>
   );
