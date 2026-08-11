@@ -11,6 +11,8 @@ import SideMenu from "../common/header/SideMenu";
 import Modal from "../components/modal/Modal";
 import IntentButton from "../components/button/IntentButton";
 
+import logo from "../assets/images/icons/Mcm_icon.svg";
+
 const Screen = styled.div`
   width: 100%;
   height: 100vh;
@@ -103,6 +105,11 @@ export default function RootLayout() {
   // 현재 프로필 관리 페이지인지 확인
   const isProfilePage = location.pathname === "/profile";
 
+  // 현재 주문 관리 페이지인지 확인
+  const isOrderPage = location.pathname === "/orders";
+
+  const isSubPage = isProfilePage || isOrderPage;
+
   useEffect(() => {
     const el = mainRef.current;
 
@@ -162,21 +169,25 @@ export default function RootLayout() {
         {/* 페이지에 따라 Header 변경 */}
         {isProfilePage ? (
           <SubHeader title="프로필 관리" onBack={() => navigate("/main")} />
+        ) : isOrderPage ? (
+          <SubHeader logo={logo} onBack={() => navigate("/main")} />
         ) : (
-          <Header
-            $hidden={navHidden}
-            onMenuClick={() => setIsMenuOpen((prev) => !prev)}
-          />
+          <Header $hidden={navHidden} onMenuClick={() => setIsMenuOpen(true)} />
         )}
 
-        <Main ref={mainRef} $hideFooter={isProfilePage}>
+        <Main ref={mainRef} $hideFooter={isSubPage}>
           <AnimatePresence>
             <PageSlide
               key={location.pathname}
               initial={{ x: isProfilePage ? "100%" : 0 }}
               animate={{ x: 0 }}
               exit={{ x: isProfilePage ? "100%" : "-100%" }}
-              transition={{ type: "spring", stiffness: 260, damping: 30, mass: 0.9 }}
+              transition={{
+                type: "spring",
+                stiffness: 260,
+                damping: 30,
+                mass: 0.9,
+              }}
             >
               {element}
             </PageSlide>
@@ -184,11 +195,11 @@ export default function RootLayout() {
         </Main>
 
         {/* 프로필 페이지에서는 Footer 숨김 */}
-        {!isProfilePage && <Footer $hidden={navHidden} />}
+        {!isSubPage && <Footer $hidden={navHidden} />}
 
         {/* 사이드 메뉴 */}
         <AnimatePresence onExitComplete={handleMenuExitComplete}>
-          {isMenuOpen && !isProfilePage && (
+          {isMenuOpen && !isSubPage && (
             <SideMenu
               user={user}
               onClose={() => setIsMenuOpen(false)}

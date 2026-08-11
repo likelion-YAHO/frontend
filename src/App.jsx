@@ -6,6 +6,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterProductPage from "./pages/Upcycle/RegisterProductPage";
 import CustomProductPage from "./pages/Upcycle/CustomProductPage";
 import ProfilePage from "./pages/ProfilePage";
+import OrderPage from "./pages/Order/OrderPage";
 import PageTransition from "./components/pageTransition/PageTransition";
 
 function App() {
@@ -58,6 +59,14 @@ function App() {
             element={
               <PageTransition>
                 <ProfilePage />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <PageTransition>
+                <OrderPage />
               </PageTransition>
             }
           />
