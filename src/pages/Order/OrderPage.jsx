@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 
-import OrderTab from "../../components/order/OrderTab";
+import OrderTab from "./OrderTab";
 // import OrderCard from "./OrderCard";
 
 // import dummyOrders from "../../data/dummyOrders";
