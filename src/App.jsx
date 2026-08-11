@@ -4,6 +4,7 @@ import MainPage from "./pages/MainPage/MainPage";
 import SplashPage from "./pages/SplashPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterProductPage from "./pages/Upcycle/RegisterProductPage";
+import CustomProductPage from "./pages/Upcycle/CustomProductPage";
 import ProfilePage from "./pages/ProfilePage";
 import OrderPage from "./pages/Order/OrderPage";
 import PageTransition from "./components/pageTransition/PageTransition";
@@ -33,6 +34,14 @@ function App() {
           element={
             <PageTransition>
               <RegisterProductPage />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/upcycle/custom"
+          element={
+            <PageTransition>
+              <CustomProductPage />
             </PageTransition>
           }
         />

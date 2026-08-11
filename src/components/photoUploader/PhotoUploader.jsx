@@ -71,6 +71,12 @@ const PhotoThumb = styled.img`
   display: block;
 `;
 
+const EmptyCell = styled.div`
+  width: 100%;
+  aspect-ratio: 117 / 200;
+  background: #f6f6f6;
+`;
+
 const RemoveButton = styled.button`
   position: absolute;
   top: 6px;
@@ -186,18 +192,26 @@ export default function PhotoUploader({ onPhotosChange, onLimitExceeded }) {
             {photos.length}/{MAX_PHOTOS}
           </AddMoreCell>
 
-          {photos.map((photo) => (
-            <PhotoThumbWrapper key={photo.id}>
-              <PhotoThumb src={photo.url} alt="업로드된 제품 사진" />
-              <RemoveButton
-                type="button"
-                onClick={() => handleRemovePhoto(photo.id)}
-                aria-label="사진 삭제"
-              >
-                ✕
-              </RemoveButton>
-            </PhotoThumbWrapper>
-          ))}
+          {Array.from({ length: MAX_PHOTOS }).map((_, index) => {
+            const photo = photos[index];
+
+            if (photo) {
+              return (
+                <PhotoThumbWrapper key={photo.id}>
+                  <PhotoThumb src={photo.url} alt="업로드된 제품 사진" />
+                  <RemoveButton
+                    type="button"
+                    onClick={() => handleRemovePhoto(photo.id)}
+                    aria-label="사진 삭제"
+                  >
+                    ✕
+                  </RemoveButton>
+                </PhotoThumbWrapper>
+              );
+            }
+
+            return <EmptyCell key={`empty-${index}`} />;
+          })}
         </PhotoGrid>
       )}
     </>
