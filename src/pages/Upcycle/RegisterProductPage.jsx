@@ -1,14 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 import Dropdown from "../../components/dropdown/Dropdown";
 import IntentButton from "../../components/button/IntentButton";
 import SubHeader from "../../common/header/SubHeader";
 import PhotoUploader from "../../components/photoUploader/PhotoUploader";
 import LimitToast from "../../components/toast/LimitToast";
+import LoadingOverlay from "../../components/loadingOverlay/LoadingOverlay";
+
+import dummyAnalysisResult from "../../data/dummyAnalysisResult";
 
 import downArrowThickIcon from "../../assets/images/icons/downArrowThick_icon.svg";
+
+const ANALYZE_DUMMY_DELAY = 2000;
 
 const categoryOptions = [
   "백팩",
@@ -39,6 +44,10 @@ const Page = styled.div`
   background: #ffffff;
 `;
 
+const PhotoArea = styled.div`
+  position: relative;
+`;
+
 const FieldGroup = styled.div`
   margin-top: 20px;
   display: flex;
@@ -60,11 +69,25 @@ const FieldLabel = styled.p`
   line-height: 26px;
 `;
 
+const pulse = keyframes`
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+`;
+
 const AnalyzeButtonArea = styled.div`
   margin-top: ${({ $isCategoryOpen }) => ($isCategoryOpen ? "24px" : "120px")};
   transition: margin-top 0.35s ease;
   display: flex;
   justify-content: center;
+`;
+
+const PulsingIntentButton = styled(IntentButton)`
+  animation: ${({ $analyzing }) => ($analyzing ? pulse : "none")} 1.1s ease-in-out
+    infinite;
 `;
 
 export default function RegisterProductPage() {
@@ -74,9 +97,17 @@ export default function RegisterProductPage() {
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [photos, setPhotos] = useState([]);
   const [showLimitToast, setShowLimitToast] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   const handleAnalyze = () => {
-    // TODO: AI 분석 연동 (추후 이슈)
+    setIsAnalyzing(true);
+
+    // TODO: 백엔드 AI 분석 API 연동 시 아래 setTimeout을 실제 API 호출로 교체
+    setTimeout(() => {
+      navigate("/upcycle/custom", {
+        state: { analysisResult: dummyAnalysisResult, photos },
+      });
+    }, ANALYZE_DUMMY_DELAY);
   };
 
   return (
@@ -84,10 +115,13 @@ export default function RegisterProductPage() {
       <Page>
         <SubHeader title="제품 등록하기" onBack={() => navigate(-1)} />
 
-        <PhotoUploader
-          onPhotosChange={setPhotos}
-          onLimitExceeded={() => setShowLimitToast(true)}
-        />
+        <PhotoArea>
+          <PhotoUploader
+            onPhotosChange={setPhotos}
+            onLimitExceeded={() => setShowLimitToast(true)}
+          />
+          <LoadingOverlay visible={isAnalyzing} />
+        </PhotoArea>
 
         <FieldGroup>
           <CategoryField>
@@ -106,15 +140,16 @@ export default function RegisterProductPage() {
         </FieldGroup>
 
         <AnalyzeButtonArea $isCategoryOpen={isCategoryOpen}>
-          <IntentButton
+          <PulsingIntentButton
             variant="black"
             width="350px"
             height="44px"
             onClick={handleAnalyze}
-            disabled={photos.length === 0}
+            disabled={photos.length === 0 || isAnalyzing}
+            $analyzing={isAnalyzing}
           >
-            AI 분석
-          </IntentButton>
+            {isAnalyzing ? "AI 분석 중 …" : "AI 분석"}
+          </PulsingIntentButton>
         </AnalyzeButtonArea>
 
         <LimitToast

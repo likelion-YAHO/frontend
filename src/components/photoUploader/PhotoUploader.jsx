@@ -9,41 +9,6 @@ const HiddenFileInput = styled.input`
   display: none;
 `;
 
-const UploadBox = styled.div`
-  width: 350px;
-  height: 400px;
-  margin: 0 auto;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background: #f6f6f6;
-  border-radius: 2px;
-  outline: 1px solid #e3e3e3;
-  outline-offset: -1px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-
-  &:hover {
-    background: #d0d0d0;
-  }
-`;
-
-const CameraIcon = styled.img`
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-`;
-
-const PhotoCount = styled.span`
-  color: #141414;
-  font-size: 20px;
-  font-weight: 600;
-  line-height: 28px;
-`;
-
 const PhotoGrid = styled.div`
   width: 350px;
   margin: 0 auto;
@@ -69,6 +34,12 @@ const PhotoThumb = styled.img`
   height: 100%;
   object-fit: cover;
   display: block;
+`;
+
+const EmptyCell = styled.div`
+  width: 100%;
+  aspect-ratio: 117 / 200;
+  background: #f6f6f6;
 `;
 
 const RemoveButton = styled.button`
@@ -174,32 +145,33 @@ export default function PhotoUploader({ onPhotosChange, onLimitExceeded }) {
         onChange={handleFileChange}
       />
 
-      {photos.length === 0 ? (
-        <UploadBox onClick={handleBoxClick}>
-          <CameraIcon src={cameraIcon} alt="사진 업로드" />
-          <PhotoCount>0/{MAX_PHOTOS}</PhotoCount>
-        </UploadBox>
-      ) : (
-        <PhotoGrid>
-          <AddMoreCell type="button" onClick={handleBoxClick}>
-            <AddMoreIcon src={cameraIcon} alt="" />
-            {photos.length}/{MAX_PHOTOS}
-          </AddMoreCell>
+      <PhotoGrid>
+        <AddMoreCell type="button" onClick={handleBoxClick}>
+          <AddMoreIcon src={cameraIcon} alt="" />
+          {photos.length}/{MAX_PHOTOS}
+        </AddMoreCell>
 
-          {photos.map((photo) => (
-            <PhotoThumbWrapper key={photo.id}>
-              <PhotoThumb src={photo.url} alt="업로드된 제품 사진" />
-              <RemoveButton
-                type="button"
-                onClick={() => handleRemovePhoto(photo.id)}
-                aria-label="사진 삭제"
-              >
-                ✕
-              </RemoveButton>
-            </PhotoThumbWrapper>
-          ))}
-        </PhotoGrid>
-      )}
+        {Array.from({ length: MAX_PHOTOS }).map((_, index) => {
+          const photo = photos[index];
+
+          if (photo) {
+            return (
+              <PhotoThumbWrapper key={photo.id}>
+                <PhotoThumb src={photo.url} alt="업로드된 제품 사진" />
+                <RemoveButton
+                  type="button"
+                  onClick={() => handleRemovePhoto(photo.id)}
+                  aria-label="사진 삭제"
+                >
+                  ✕
+                </RemoveButton>
+              </PhotoThumbWrapper>
+            );
+          }
+
+          return <EmptyCell key={`empty-${index}`} />;
+        })}
+      </PhotoGrid>
     </>
   );
 }
