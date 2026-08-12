@@ -1,7 +1,6 @@
 import styled from "styled-components";
 
 import HistoryCard from "./HistoryCard";
-import dummyOrders from "../../data/dummyOrders";
 
 const Content = styled.div`
   width: 100%;
@@ -37,14 +36,26 @@ const EmptyText = styled.p`
   text-align: center;
 `;
 
-export default function OrderHistoryListPage() {
-  const historyOrders = dummyOrders
-    .filter((order) => order.status === "completed")
-    .sort(
-      (a, b) =>
+export default function OrderHistoryListPage({ orders, onRestore }) {
+  const historyOrders = orders
+    .filter(
+      (order) => order.status === "completed" || order.status === "cancelled",
+    )
+    .sort((a, b) => {
+      /*
+       * 취소 주문은 receivedDate가 없을 수 있으므로 일단 id 기준 최신순 fallback
+       *
+       * 완료 주문 날짜 정렬은 API 연동 시 다시 맞출 예정
+       */
+      if (!a.receivedDate || !b.receivedDate) {
+        return b.id - a.id;
+      }
+
+      return (
         new Date(b.receivedDate.replaceAll(".", "-")) -
-        new Date(a.receivedDate.replaceAll(".", "-")),
-    );
+        new Date(a.receivedDate.replaceAll(".", "-"))
+      );
+    });
 
   if (historyOrders.length === 0) {
     return (
@@ -61,7 +72,11 @@ export default function OrderHistoryListPage() {
   return (
     <Content>
       {historyOrders.map((order) => (
-        <HistoryCard key={order.id} order={order} />
+        <HistoryCard
+          key={order.id}
+          order={order}
+          onRestore={() => onRestore(order.id)}
+        />
       ))}
     </Content>
   );
