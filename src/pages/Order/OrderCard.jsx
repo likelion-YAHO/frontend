@@ -1,6 +1,7 @@
 import styled from "styled-components";
 
 import ActionButton from "../../components/button/ActionButton";
+import OrderBarcode from "./OrderBarcode";
 
 import activeStepIcon from "../../assets/images/icons/activeStep_icon.svg";
 import inactiveStepIcon from "../../assets/images/icons/inactiveStep_icon.svg";
@@ -295,9 +296,13 @@ const BarcodeOuterBox = styled.div`
   border-radius: 0 0 6px 6px;
 `;
 
+/* 바코드 */
 const BarcodeBox = styled.div`
   width: 330px;
   height: 73px;
+
+  padding: 16px;
+  box-sizing: border-box;
 
   display: flex;
   align-items: center;
@@ -308,21 +313,7 @@ const BarcodeBox = styled.div`
   border: 1px solid #d0d0d0;
   border-radius: 0 0 6px 6px;
 
-  box-sizing: border-box;
-`;
-
-/* 지금은 UI 테스트용 */
-const Barcode = styled.div`
-  width: 292px;
-  height: 46px;
-
-  background: repeating-linear-gradient(
-    90deg,
-    #141414 0px,
-    #141414 2px,
-    #ffffff 2px,
-    #ffffff 4px
-  );
+  overflow: hidden;
 `;
 
 export default function OrderCard({ order }) {
@@ -403,7 +394,7 @@ export default function OrderCard({ order }) {
 
       <BarcodeOuterBox>
         <BarcodeBox>
-          <Barcode />
+          <OrderBarcode value={order.orderNumber} />
         </BarcodeBox>
       </BarcodeOuterBox>
     </Card>
