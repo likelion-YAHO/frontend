@@ -2,6 +2,8 @@ import styled from "styled-components";
 
 import ActionButton from "../../components/button/ActionButton";
 
+import cancelIcon from "../../assets/images/icons/loginError_icon.svg";
+
 const Card = styled.div`
   width: 350px;
 
@@ -17,14 +19,36 @@ const Card = styled.div`
 /* =========================
    주문 번호
 ========================= */
-
-const OrderNumberRow = styled.div`
+const OrderHeaderRow = styled.div`
   height: 22px;
 
   margin-bottom: 4px;
 
   display: flex;
   align-items: center;
+`;
+
+const CancelStatus = styled.div`
+  margin-right: 6px;
+
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  color: #e84c4c;
+
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+`;
+
+const CancelIcon = styled.img`
+  width: 16px;
+  height: 16px;
+
+  margin-left: 4px;
+
+  object-fit: contain;
 `;
 
 const OrderNumberLabel = styled.span`
@@ -100,8 +124,10 @@ const InfoRow = styled.div`
   display: flex;
   align-items: center;
 
+  visibility: ${({ $hidden }) => ($hidden ? "hidden" : "visible")};
+
   & + & {
-    margin-top: 4px;
+    margin-top: 6px;
   }
 `;
 
@@ -140,16 +166,25 @@ const ButtonArea = styled.div`
   margin-top: 16px;
 `;
 
-export default function OrderHistoryCard({ order }) {
+export default function OrderHistoryCard({ order, onRestore }) {
+  const isCancelled = order.status === "cancelled";
+
   return (
     <Card>
-      <OrderNumberRow>
+      <OrderHeaderRow>
+        {isCancelled && (
+          <CancelStatus>
+            <CancelIcon src={cancelIcon} alt="" />
+            취소된 주문
+          </CancelStatus>
+        )}
+
         <OrderNumberLabel>주문번호</OrderNumberLabel>
+
         <OrderNumber>{order.orderNumber}</OrderNumber>
-      </OrderNumberRow>
+      </OrderHeaderRow>
 
       <ProductBox>
-        {/* API 연결 전까지 이미지 자리만 유지 */}
         <ProductImageBox />
 
         <ProductInfo>
@@ -163,15 +198,21 @@ export default function OrderHistoryCard({ order }) {
             <InfoValue>{order.store}</InfoValue>
           </InfoRow>
 
-          <InfoRow>
+          <InfoRow $hidden={isCancelled}>
             <InfoLabel>수령 날짜</InfoLabel>
             <InfoValue>{order.receivedDate}</InfoValue>
           </InfoRow>
 
           <ButtonArea>
-            <ActionButton width="100%" height="26px">
-              문의하기
-            </ActionButton>
+            {isCancelled ? (
+              <ActionButton width="100%" height="26px" onClick={onRestore}>
+                예약 복원
+              </ActionButton>
+            ) : (
+              <ActionButton width="100%" height="26px">
+                문의하기
+              </ActionButton>
+            )}
           </ButtonArea>
         </ProductInfo>
       </ProductBox>

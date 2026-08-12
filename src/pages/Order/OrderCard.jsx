@@ -316,7 +316,7 @@ const BarcodeBox = styled.div`
   overflow: hidden;
 `;
 
-export default function OrderCard({ order }) {
+export default function OrderCard({ order, onCancel }) {
   const currentStepIndex = order.steps.reduce((lastIndex, step, index) => {
     return step.completed ? index : lastIndex;
   }, -1);
@@ -348,7 +348,7 @@ export default function OrderCard({ order }) {
                 예약 변동
               </ActionButton>
 
-              <ActionButton width="99px" height="30px">
+              <ActionButton width="99px" height="30px" onClick={onCancel}>
                 예약 취소
               </ActionButton>
             </ActionButtonArea>

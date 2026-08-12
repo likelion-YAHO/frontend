@@ -1,7 +1,6 @@
 import styled from "styled-components";
 
 import OrderCard from "./OrderCard";
-import dummyOrders from "../../data/dummyOrders";
 
 const Content = styled.div`
   width: 100%;
@@ -37,8 +36,8 @@ const EmptyText = styled.p`
   text-align: center;
 `;
 
-export default function ReservationListPage() {
-  const reservationOrders = dummyOrders.filter(
+export default function ReservationListPage({ orders, onCancel }) {
+  const reservationOrders = orders.filter(
     (order) => order.status === "inProgress",
   );
 
@@ -57,7 +56,11 @@ export default function ReservationListPage() {
   return (
     <Content>
       {reservationOrders.map((order) => (
-        <OrderCard key={order.id} order={order} />
+        <OrderCard
+          key={order.id}
+          order={order}
+          onCancel={() => onCancel(order.id)}
+        />
       ))}
     </Content>
   );
