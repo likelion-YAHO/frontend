@@ -25,9 +25,16 @@ const Page = styled.div`
   width: 100%;
   max-width: 390px;
   min-height: 100vh;
-  padding: 68px 20px 100px;
+  padding: 68px 20px 0;
   box-sizing: border-box;
   background: #ffffff;
+
+  display: flex;
+  flex-direction: column;
+`;
+
+const ContentArea = styled.div`
+  flex: 1;
 `;
 
 const PhotoPreviewWrapper = styled.div`
@@ -162,18 +169,11 @@ const AddOnSection = styled(Section)`
 `;
 
 const SubmitButtonArea = styled.div`
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-
-  width: 100%;
-  max-width: 390px;
-  padding: 16px 20px;
+  margin: 42px -20px 0;
+  padding: 10px 10px 72px;
   box-sizing: border-box;
 
   background: #ffffff;
-  border-top: 1px solid #e3e3e3;
 
   display: flex;
   justify-content: center;
@@ -211,8 +211,8 @@ export default function CustomProductPage() {
   };
 
   const handleComplete = () => {
-    // TODO: 커스텀 선택 결과 제출 API 연동 (추후 이슈)
-    navigate("/main");
+    // TODO: 커스텀 선택 결과를 실제 결제 요약 데이터로 변환해 전달 (추후 이슈)
+    navigate("/upcycle/reservation");
   };
 
   return (
@@ -220,110 +220,112 @@ export default function CustomProductPage() {
       <Page>
         <SubHeader title="제품 커스텀" onBack={() => navigate(-1)} />
 
-        {photos.length > 0 && (
-          <PhotoPreviewWrapper>
-            <PhotoPreviewGrid ref={photoScrollRef}>
-              {photos.map((photo) => (
-                <PhotoPreviewImage
-                  key={photo.id}
-                  src={photo.url}
-                  alt="업로드된 제품 사진"
-                />
+        <ContentArea>
+          {photos.length > 0 && (
+            <PhotoPreviewWrapper>
+              <PhotoPreviewGrid ref={photoScrollRef}>
+                {photos.map((photo) => (
+                  <PhotoPreviewImage
+                    key={photo.id}
+                    src={photo.url}
+                    alt="업로드된 제품 사진"
+                  />
+                ))}
+              </PhotoPreviewGrid>
+
+              {photos.length > 1 && (
+                <>
+                  <PhotoArrowButton
+                    type="button"
+                    $direction="left"
+                    onClick={scrollPhotosPrev}
+                  >
+                    <PhotoArrowIcon src={leftArrowGray} alt="이전 사진" />
+                  </PhotoArrowButton>
+                  <PhotoArrowButton
+                    type="button"
+                    $direction="right"
+                    onClick={scrollPhotosNext}
+                  >
+                    <PhotoArrowIcon src={leftArrowGray} alt="다음 사진" />
+                  </PhotoArrowButton>
+                </>
+              )}
+            </PhotoPreviewWrapper>
+          )}
+
+          <TagArea>
+            <TagLabel>AI 커스텀 추천</TagLabel>
+            <TagList>
+              {analysisResult.recommendedTags.map((tag) => (
+                <Tag key={tag}>{tag}</Tag>
               ))}
-            </PhotoPreviewGrid>
+            </TagList>
+          </TagArea>
 
-            {photos.length > 1 && (
-              <>
-                <PhotoArrowButton
-                  type="button"
-                  $direction="left"
-                  onClick={scrollPhotosPrev}
-                >
-                  <PhotoArrowIcon src={leftArrowGray} alt="이전 사진" />
-                </PhotoArrowButton>
-                <PhotoArrowButton
-                  type="button"
-                  $direction="right"
-                  onClick={scrollPhotosNext}
-                >
-                  <PhotoArrowIcon src={leftArrowGray} alt="다음 사진" />
-                </PhotoArrowButton>
-              </>
-            )}
-          </PhotoPreviewWrapper>
-        )}
+          <Section>
+            <SectionTitle>업사이클 가능한 제품</SectionTitle>
+            <SelectorArea>
+              <ImageSelector
+                items={analysisResult.upcyclableProducts}
+                value={selectedProduct}
+                onChange={setSelectedProduct}
+              />
+            </SelectorArea>
+          </Section>
 
-        <TagArea>
-          <TagLabel>AI 커스텀 추천</TagLabel>
-          <TagList>
-            {analysisResult.recommendedTags.map((tag) => (
-              <Tag key={tag}>{tag}</Tag>
-            ))}
-          </TagList>
-        </TagArea>
+          <ColorSection>
+            <SectionTitle>컬러</SectionTitle>
+            <SectionDescription>
+              *제품의 포인트 컬러를 변경할 수 있습니다.
+            </SectionDescription>
 
-        <Section>
-          <SectionTitle>업사이클 가능한 제품</SectionTitle>
-          <SelectorArea>
-            <ImageSelector
-              items={analysisResult.upcyclableProducts}
-              value={selectedProduct}
-              onChange={setSelectedProduct}
-            />
-          </SelectorArea>
-        </Section>
+            <SelectorArea>
+              <AddOnLabel>포인트 스와치</AddOnLabel>
+              <ColorSwatchPicker
+                colors={analysisResult.pointStitchColors}
+                value={selectedStitchColor}
+                onChange={setSelectedStitchColor}
+              />
+            </SelectorArea>
 
-        <ColorSection>
-          <SectionTitle>컬러</SectionTitle>
-          <SectionDescription>
-            *제품의 포인트 컬러를 변경할 수 있습니다.
-          </SectionDescription>
+            <AddOnGroup>
+              <AddOnLabel>메탈 컬러</AddOnLabel>
+              <ColorSwatchPicker
+                colors={analysisResult.metalColors}
+                value={selectedMetalColor}
+                onChange={setSelectedMetalColor}
+              />
+            </AddOnGroup>
+          </ColorSection>
 
-          <SelectorArea>
-            <AddOnLabel>포인트 스와치</AddOnLabel>
-            <ColorSwatchPicker
-              colors={analysisResult.pointStitchColors}
-              value={selectedStitchColor}
-              onChange={setSelectedStitchColor}
-            />
-          </SelectorArea>
+          <AddOnSection>
+            <SectionTitle>추가 상품</SectionTitle>
+            <SectionDescription>
+              추가 상품을 선택해 커스터마이징이 가능합니다.
+            </SectionDescription>
 
-          <AddOnGroup>
-            <AddOnLabel>메탈 컬러</AddOnLabel>
-            <ColorSwatchPicker
-              colors={analysisResult.metalColors}
-              value={selectedMetalColor}
-              onChange={setSelectedMetalColor}
-            />
-          </AddOnGroup>
-        </ColorSection>
+            <SelectorArea>
+              <AddOnLabel>레더 참 &amp; 키링</AddOnLabel>
+              <ImageSelector
+                items={analysisResult.addOns.leatherCharms}
+                value={selectedCharm}
+                onChange={setSelectedCharm}
+                itemHeight="100px"
+              />
+            </SelectorArea>
 
-        <AddOnSection>
-          <SectionTitle>추가 상품</SectionTitle>
-          <SectionDescription>
-            추가 상품을 선택해 커스터마이징이 가능합니다.
-          </SectionDescription>
-
-          <SelectorArea>
-            <AddOnLabel>레더 참 &amp; 키링</AddOnLabel>
-            <ImageSelector
-              items={analysisResult.addOns.leatherCharms}
-              value={selectedCharm}
-              onChange={setSelectedCharm}
-              itemHeight="100px"
-            />
-          </SelectorArea>
-
-          <AddOnGroup>
-            <AddOnLabel>스카프</AddOnLabel>
-            <ImageSelector
-              items={analysisResult.addOns.scarves}
-              value={selectedScarf}
-              onChange={setSelectedScarf}
-              itemHeight="100px"
-            />
-          </AddOnGroup>
-        </AddOnSection>
+            <AddOnGroup>
+              <AddOnLabel>스카프</AddOnLabel>
+              <ImageSelector
+                items={analysisResult.addOns.scarves}
+                value={selectedScarf}
+                onChange={setSelectedScarf}
+                itemHeight="100px"
+              />
+            </AddOnGroup>
+          </AddOnSection>
+        </ContentArea>
 
         <SubmitButtonArea>
           <IntentButton
