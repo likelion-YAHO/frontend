@@ -10,6 +10,7 @@ import InfoNote from "../../components/infoNote/InfoNote";
 import StoreSearchModal from "../../components/storeSearchModal/StoreSearchModal";
 import CalendarModal from "../../components/calendarModal/CalendarModal";
 import LimitToast from "../../components/toast/LimitToast";
+import ReservationCompleteModal from "../../components/reservationCompleteModal/ReservationCompleteModal";
 
 import dummyReservationSummary from "../../data/dummyReservationSummary";
 
@@ -89,26 +90,28 @@ export default function ReservationPage() {
   const [isStoreModalOpen, setIsStoreModalOpen] = useState(false);
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isButtonHovered, setIsButtonHovered] = useState(false);
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [isToastVisible, setIsToastVisible] = useState(false);
 
   const handleReserve = () => {
-    if (!store) {
-      setToastMessage("매장을 선택해주세요");
-      setIsToastVisible(true);
-      return;
-    }
-    if (!date) {
-      setToastMessage("날짜를 선택해주세요");
-      setIsToastVisible(true);
-      return;
-    }
-    if (!time) {
-      setToastMessage("예약 시간을 선택해주세요");
-      setIsToastVisible(true);
-      return;
-    }
-    // TODO: 예약 확정 API 연동 (추후 이슈)
+  if (!store) {
+    setToastMessage("매장을 선택해주세요");
+    setIsToastVisible(true);
+    return;
+  }
+  if (!date) {
+    setToastMessage("날짜를 선택해주세요");
+    setIsToastVisible(true);
+    return;
+  }
+  if (!time) {
+    setToastMessage("예약 시간을 선택해주세요");
+    setIsToastVisible(true);
+    return;
+  }
+  // TODO: 예약 확정 API 연동 (추후 이슈)
+  setIsCompleteModalOpen(true);
   };
 
   return (
@@ -188,6 +191,12 @@ export default function ReservationPage() {
             setDate(selectedDate);
             setTime(selectedTime);
           }}
+        />
+
+        <ReservationCompleteModal
+          isOpen={isCompleteModalOpen}
+          onConfirm={() => navigate("/orders")}
+          onAutoRedirect={() => navigate("/main")}
         />
       </Page>
 

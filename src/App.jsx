@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import RootLayout from "./layout/RootLayout";
 import MainPage from "./pages/MainPage/MainPage";
 import SplashPage from "./pages/SplashPage";
@@ -10,10 +11,12 @@ import ProfilePage from "./pages/ProfilePage";
 import OrderPage from "./pages/Order/OrderPage";
 import PageTransition from "./components/pageTransition/PageTransition";
 
-function App() {
+function AnimatedRoutes() {
+  const location = useLocation();
+
   return (
-    <BrowserRouter>
-      <Routes>
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
         <Route
           path="/"
           element={
@@ -81,6 +84,14 @@ function App() {
           />
         </Route>
       </Routes>
+    </AnimatePresence>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AnimatedRoutes />
     </BrowserRouter>
   );
 }
