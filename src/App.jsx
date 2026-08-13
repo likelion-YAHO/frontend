@@ -10,6 +10,7 @@ import ReservationPage from "./pages/Upcycle/ReservationPage";
 import ProfilePage from "./pages/ProfilePage";
 import OrderPage from "./pages/Order/OrderPage";
 import PageTransition from "./components/pageTransition/PageTransition";
+import InquiryPage from "./pages/Inquiry/InquiryPage";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -79,6 +80,14 @@ function AnimatedRoutes() {
             element={
               <PageTransition>
                 <OrderPage />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/inquiry"
+            element={
+              <PageTransition>
+                <InquiryPage />
               </PageTransition>
             }
           />
