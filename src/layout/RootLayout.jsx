@@ -108,7 +108,10 @@ export default function RootLayout() {
   // 현재 주문 관리 페이지인지 확인
   const isOrderPage = location.pathname === "/orders";
 
-  const isSubPage = isProfilePage || isOrderPage;
+  // 현재 문의하기 페이지인지 확인
+  const isInquiryPage = location.pathname === "/inquiry";
+
+  const isSubPage = isProfilePage || isOrderPage || isInquiryPage;
 
   useEffect(() => {
     const el = mainRef.current;
@@ -171,6 +174,8 @@ export default function RootLayout() {
           <SubHeader title="프로필 관리" onBack={() => navigate("/main")} />
         ) : isOrderPage ? (
           <SubHeader logo={logo} onBack={() => navigate("/main")} />
+        ) : isInquiryPage ? (
+          <SubHeader logo={logo} onBack={() => navigate(-1)} />
         ) : (
           <Header $hidden={navHidden} onMenuClick={() => setIsMenuOpen(true)} />
         )}

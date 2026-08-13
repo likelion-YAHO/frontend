@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 import ActionButton from "../../components/button/ActionButton";
@@ -167,6 +168,8 @@ const ButtonArea = styled.div`
 `;
 
 export default function OrderHistoryCard({ order, onRestore }) {
+  const navigate = useNavigate();
+
   const isCancelled = order.status === "cancelled";
 
   return (
@@ -209,7 +212,18 @@ export default function OrderHistoryCard({ order, onRestore }) {
                 예약 복원
               </ActionButton>
             ) : (
-              <ActionButton width="100%" height="26px">
+              <ActionButton
+                width="100%"
+                height="30px"
+                onClick={() =>
+                  navigate("/inquiry", {
+                    state: {
+                      orderId: order.id,
+                      orderNumber: order.orderNumber,
+                    },
+                  })
+                }
+              >
                 문의하기
               </ActionButton>
             )}
