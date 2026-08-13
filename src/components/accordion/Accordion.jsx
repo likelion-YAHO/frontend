@@ -48,7 +48,7 @@ const ArrowIcon = styled.img`
 const AccordionContent = styled.div`
   width: 100%;
 
-  padding: 20px;
+  padding: 12px 32px 42px 32px;
   box-sizing: border-box;
 
   background: #f6f6f6;
@@ -69,7 +69,13 @@ function Accordion({ title, children, dark = false }) {
         <ArrowIcon src={isOpen ? downArrow : rightArrow} alt="" $dark={dark} />
       </AccordionHeader>
 
-      {isOpen && <AccordionContent>{children}</AccordionContent>}
+      {isOpen && (
+        <AccordionContent>
+          {typeof children === "function"
+            ? children(() => setIsOpen(false))
+            : children}
+        </AccordionContent>
+      )}
     </AccordionContainer>
   );
 }
