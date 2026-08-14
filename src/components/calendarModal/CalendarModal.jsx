@@ -14,14 +14,25 @@ const getMonthCells = (year, month) => {
   const cells = [];
 
   for (let i = startWeekday - 1; i >= 0; i--) {
-    cells.push({ day: daysInPrevMonth - i, current: false });
+    cells.push({
+      day: daysInPrevMonth - i,
+      current: false,
+    });
   }
   for (let d = 1; d <= daysInMonth; d++) {
-    cells.push({ day: d, current: true, weekday: (startWeekday + d - 1) % 7 });
+    cells.push({
+      day: d,
+      current: true,
+      weekday: (startWeekday + d - 1) % 7,
+    });
   }
   let nextDay = 1;
   while (cells.length % 7 !== 0) {
-    cells.push({ day: nextDay, current: false });
+    cells.push({
+      day: nextDay,
+      current: false,
+    });
+
     nextDay++;
   }
 
@@ -35,23 +46,103 @@ const buildMonths = (baseYear, baseMonth, range) => {
     months.push({
       year: date.getFullYear(),
       month: date.getMonth(),
+
       cells: getMonthCells(date.getFullYear(), date.getMonth()),
     });
   }
+
   return months;
 };
 
 const today = new Date();
+
 const months = buildMonths(today.getFullYear(), today.getMonth(), 2);
 
-const CalendarModal = ({ isOpen, onClose, onSelectComplete }) => {
+const parseInitialDate = (initialDate) => {
+  if (!initialDate) return null;
+
+  const numbers = initialDate.match(/\d+/g);
+
+  if (!numbers || numbers.length < 3) {
+    return null;
+  }
+
+  const [year, month, day] = numbers.map(Number);
+
+  return {
+    year,
+    month: month - 1,
+    day,
+  };
+};
+
+const CalendarModal = ({
+  isOpen,
+  onClose,
+  onSelectComplete,
+
+  // create = 최초 예약
+  // edit = 예약 변동
+  mode = "create",
+
+  // edit일 때 기존 예약 정보
+  initialDate,
+  initialTime,
+}) => {
+  if (!isOpen) return null;
+
+  return (
+    <CalendarModalContent
+      onClose={onClose}
+      onSelectComplete={onSelectComplete}
+      mode={mode}
+      initialDate={initialDate}
+      initialTime={initialTime}
+    />
+  );
+};
+
+const CalendarModalContent = ({
+  onClose,
+  onSelectComplete,
+  mode,
+  initialDate,
+  initialTime,
+}) => {
   const sliderRef = useRef(null);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedTime, setSelectedTime] = useState(null);
+
+  /*
+   * 신규 예약(create)
+   * → 아무 날짜도 선택되지 않은 상태
+   *
+   * 예약 변동(edit)
+   * → 기존 예약 날짜가 선택된 상태
+   */
+  const [selectedDate, setSelectedDate] = useState(() => {
+    if (mode === "edit") {
+      return parseInitialDate(initialDate);
+    }
+
+    return null;
+  });
+
+  /*
+   * 신규 예약
+   * → 시간 선택 X
+   *
+   * 예약 변동
+   * → 기존 예약 시간 선택
+   */
+  const [selectedTime, setSelectedTime] = useState(() => {
+    if (mode === "edit") {
+      return initialTime || null;
+    }
+
+    return null;
+  });
+
   const [toastMessage, setToastMessage] = useState("");
   const [isToastVisible, setIsToastVisible] = useState(false);
-
-  if (!isOpen) return null;
 
   const scrollByMonth = (direction) => {
     if (!sliderRef.current) return;
@@ -62,14 +153,21 @@ const CalendarModal = ({ isOpen, onClose, onSelectComplete }) => {
   };
 
   const handleDayClick = (year, month, day) => {
-    setSelectedDate({ year, month, day });
+    setSelectedDate({
+      year,
+      month,
+      day,
+    });
   };
 
-  const isSelected = (year, month, day) =>
-    selectedDate &&
-    selectedDate.year === year &&
-    selectedDate.month === month &&
-    selectedDate.day === day;
+  const isSelected = (year, month, day) => {
+    return (
+      selectedDate &&
+      selectedDate.year === year &&
+      selectedDate.month === month &&
+      selectedDate.day === day
+    );
+  };
 
   const formattedResult =
     selectedDate && selectedTime
@@ -77,7 +175,7 @@ const CalendarModal = ({ isOpen, onClose, onSelectComplete }) => {
       : "";
 
   const handleComplete = () => {
-    console.log("클릭됨", { selectedDate, selectedTime });
+    // 날짜 미선택
     if (!selectedDate) {
       setToastMessage("날짜를 선택해주세요");
       setIsToastVisible(true);
@@ -88,8 +186,14 @@ const CalendarModal = ({ isOpen, onClose, onSelectComplete }) => {
       setIsToastVisible(true);
       return;
     }
+
     const dateLabel = `${selectedDate.year}.${selectedDate.month + 1}.${selectedDate.day}`;
-    onSelectComplete({ date: dateLabel, time: selectedTime });
+
+    onSelectComplete({
+      date: dateLabel,
+      time: selectedTime,
+    });
+
     onClose();
   };
 
@@ -97,7 +201,7 @@ const CalendarModal = ({ isOpen, onClose, onSelectComplete }) => {
     <>
       <Overlay onClick={onClose}>
         <ModalCard onClick={(e) => e.stopPropagation()}>
-          <Title>예약하기</Title>
+          <Title>{mode === "edit" ? "예약 변동" : "예약하기"}</Title>
 
           <WeekdayRow>
             {WEEKDAYS.map((w, i) => (
@@ -162,7 +266,9 @@ const CalendarModal = ({ isOpen, onClose, onSelectComplete }) => {
 
           <ResultBar>{formattedResult || "-"}</ResultBar>
 
-          <CompleteButton onClick={handleComplete}>변경 완료</CompleteButton>
+          <CompleteButton onClick={handleComplete}>
+            {mode === "edit" ? "변경 완료" : "예약 완료"}
+          </CompleteButton>
         </ModalCard>
       </Overlay>
 
@@ -298,7 +404,8 @@ const DayCell = styled.button`
 const ArrowButton = styled.button`
   position: absolute;
   top: 50%;
-  ${({ $direction }) => ($direction === "left" ? "left: -20px;" : "right: -20px;")}
+  ${({ $direction }) =>
+    $direction === "left" ? "left: -20px;" : "right: -20px;"}
   transform: translateY(-50%);
 
   width: 24px;
