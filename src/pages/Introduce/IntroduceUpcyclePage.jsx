@@ -154,7 +154,7 @@ export default function IntroduceUpcyclePage() {
         </CenterSection>
       </Content>
 
-      <BrandIntro showIntro={false} />
+      <BrandIntro />
     </Page>
   );
 }
