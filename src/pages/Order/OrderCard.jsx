@@ -1,4 +1,7 @@
+import { useState } from "react";
 import styled from "styled-components";
+
+import CalendarModal from "../../components/calendarModal/CalendarModal";
 
 import ActionButton from "../../components/button/ActionButton";
 import OrderBarcode from "./OrderBarcode";
@@ -317,86 +320,134 @@ const BarcodeBox = styled.div`
 `;
 
 export default function OrderCard({ order, onCancel }) {
-  const currentStepIndex = order.steps.reduce((lastIndex, step, index) => {
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
+  const [reservationDate, setReservationDate] = useState(order.reservationDate);
+
+  const [reservationTime, setReservationTime] = useState(order.reservationTime);
+
+  const [steps, setSteps] = useState(order.steps);
+
+  const currentStepIndex = steps.reduce((lastIndex, step, index) => {
     return step.completed ? index : lastIndex;
   }, -1);
 
+  const handleReservationChange = ({ date, time }) => {
+    setReservationDate(date);
+    setReservationTime(time);
+
+    // 첫 번째 step = 방문 예약
+    setSteps((prevSteps) =>
+      prevSteps.map((step, index) =>
+        index === 0
+          ? {
+              ...step,
+              completed: true,
+              completedTime: `${date} ${time}`,
+            }
+          : step,
+      ),
+    );
+
+    setIsCalendarOpen(false);
+  };
+
   return (
-    <Card>
-      <TopBox>
-        <OrderNumberRow>
-          <OrderNumberLabel>주문번호</OrderNumberLabel>
-          <OrderNumber>{order.orderNumber}</OrderNumber>
-        </OrderNumberRow>
+    <>
+      <Card>
+        <TopBox>
+          <OrderNumberRow>
+            <OrderNumberLabel>주문번호</OrderNumberLabel>
 
-        <ProductBox>
-          <ProductImage src={order.productImage} alt={order.productName} />
+            <OrderNumber>{order.orderNumber}</OrderNumber>
+          </OrderNumberRow>
 
-          <ProductInfo>
-            <InfoRow>
-              <InfoLabel>예약 제품</InfoLabel>
-              <InfoValue>{order.productName}</InfoValue>
-            </InfoRow>
+          <ProductBox>
+            <ProductImage src={order.productImage} alt={order.productName} />
 
-            <InfoRow>
-              <InfoLabel>매장</InfoLabel>
-              <InfoValue>{order.store}</InfoValue>
-            </InfoRow>
+            <ProductInfo>
+              <InfoRow>
+                <InfoLabel>예약 제품</InfoLabel>
 
-            <ActionButtonArea>
-              <ActionButton width="99px" height="30px">
-                예약 변동
-              </ActionButton>
+                <InfoValue>{order.productName}</InfoValue>
+              </InfoRow>
 
-              <ActionButton width="99px" height="30px" onClick={onCancel}>
-                예약 취소
-              </ActionButton>
-            </ActionButtonArea>
-          </ProductInfo>
-        </ProductBox>
+              <InfoRow>
+                <InfoLabel>매장</InfoLabel>
 
-        <ProgressBox>
-          <StateArea>
-            <ProgressLine />
+                <InfoValue>{order.store}</InfoValue>
+              </InfoRow>
 
-            {order.steps.map((step, index) => {
-              const isCurrent = index === currentStepIndex;
+              <ActionButtonArea>
+                <ActionButton
+                  width="99px"
+                  height="30px"
+                  onClick={() => setIsCalendarOpen(true)}
+                >
+                  예약 변동
+                </ActionButton>
 
-              return (
-                <StateItem key={step.id}>
-                  <StepIcon
-                    src={isCurrent ? activeStepIcon : inactiveStepIcon}
-                    $active={isCurrent}
-                    alt=""
-                  />
+                <ActionButton width="99px" height="30px" onClick={onCancel}>
+                  예약 취소
+                </ActionButton>
+              </ActionButtonArea>
+            </ProductInfo>
+          </ProductBox>
 
-                  <StateLabel $active={isCurrent}>{step.label}</StateLabel>
-                </StateItem>
-              );
-            })}
-          </StateArea>
+          <ProgressBox>
+            <StateArea>
+              <ProgressLine />
 
-          <DateArea>
-            {order.steps.map((step, index) => {
-              const isCurrent = index === currentStepIndex;
+              {steps.map((step, index) => {
+                const isCurrent = index === currentStepIndex;
 
-              return (
-                <DateItem key={step.id} $active={isCurrent}>
-                  {step.completed ? step.completedTime : ""}
-                </DateItem>
-              );
-            })}
+                return (
+                  <StateItem key={step.id}>
+                    <StepIcon
+                      src={isCurrent ? activeStepIcon : inactiveStepIcon}
+                      $active={isCurrent}
+                      alt=""
+                    />
 
-            <ExpectedDate>예상 도착일 {order.expectedArrivalDate}</ExpectedDate>
-          </DateArea>
-        </ProgressBox>
-      </TopBox>
+                    <StateLabel $active={isCurrent}>{step.label}</StateLabel>
+                  </StateItem>
+                );
+              })}
+            </StateArea>
 
-      <BarcodeOuterBox>
-        <BarcodeBox>
-          <OrderBarcode value={order.orderNumber} />
-        </BarcodeBox>
-      </BarcodeOuterBox>
-    </Card>
+            <DateArea>
+              {steps.map((step, index) => {
+                const isCurrent = index === currentStepIndex;
+
+                return (
+                  <DateItem key={step.id} $active={isCurrent}>
+                    {step.completed ? step.completedTime : ""}
+                  </DateItem>
+                );
+              })}
+
+              <ExpectedDate>
+                예상 도착일 {order.expectedArrivalDate}
+              </ExpectedDate>
+            </DateArea>
+          </ProgressBox>
+        </TopBox>
+
+        <BarcodeOuterBox>
+          <BarcodeBox>
+            <OrderBarcode value={order.orderNumber} />
+          </BarcodeBox>
+        </BarcodeOuterBox>
+      </Card>
+
+      <CalendarModal
+        isOpen={isCalendarOpen}
+        onClose={() => setIsCalendarOpen(false)}
+        onSelectComplete={handleReservationChange}
+        mode="edit"
+        initialDate={reservationDate}
+        initialTime={reservationTime}
+      />
+    </>
   );
 }
