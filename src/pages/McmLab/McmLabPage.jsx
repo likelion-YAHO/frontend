@@ -3,6 +3,7 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import styled from "styled-components";
 import TransparentButton from "../../components/button/TransparentButton";
 import RankingCard from "./RankingCard";
+import LabEditionPage from "./LabEditionPage";
 import dummyMcmLabRanking from "../../data/dummyMcmLabRanking";
 import bannerBg from "../../assets/images/mcmlab/mcmlab_banner_bg.png";
 
@@ -103,20 +104,6 @@ const RankingGrid = styled.div`
   box-sizing: border-box;
 `;
 
-const EditionPlaceholder = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  min-height: 400px;
-
-  color: var(--gray-700, #727272);
-
-  font-family: "Pretendard Variable", Pretendard, sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-`;
-
 export default function McmLabPage() {
   const navigate = useNavigate();
   const { mcmLabTab } = useOutletContext();
@@ -146,8 +133,8 @@ export default function McmLabPage() {
     );
   };
 
-  if (mcmLabTab !== "lab") {
-    return <EditionPlaceholder>Lab Edition 준비 중입니다.</EditionPlaceholder>;
+  if (mcmLabTab === "edition") {
+    return <LabEditionPage />;
   }
 
   return (

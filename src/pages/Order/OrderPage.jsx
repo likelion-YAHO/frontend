@@ -1,7 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 
-import OrderTab from "./OrderTab";
+import TwoTab from "../../components/tab/TwoTab";
 import ReservationListPage from "./ReservationListPage";
 import OrderHistoryListPage from "./OrderHistoryListPage";
 
@@ -83,7 +83,14 @@ export default function OrderPage() {
 
   return (
     <Page>
-      <OrderTab activeTab={activeTab} onChange={setActiveTab} />
+      <TwoTab
+        tabs={[
+          { label: "예약 주문", value: "reservation" },
+          { label: "주문 내역", value: "history" },
+        ]}
+        activeTab={activeTab}
+        onChange={setActiveTab}
+      />
 
       {activeTab === "reservation" && (
         <ReservationListPage orders={orders} onCancel={handleCancelClick} />
