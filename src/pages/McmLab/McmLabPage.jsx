@@ -1,0 +1,263 @@
+import { useState, useMemo } from "react";
+import { useNavigate, useOutletContext } from "react-router-dom";
+import styled from "styled-components";
+import RankingCard from "./RankingCard";
+import dummyMcmLabRanking from "../../data/dummyMcmLabRanking";
+import bannerBg from "../../assets/images/mcmlab/mcmlab_banner_bg.png";
+import rightArrowWhite from "../../assets/images/icons/rightArrowWhite.svg";
+
+const BannerWrap = styled.div`
+  position: relative;
+
+  width: 100%;
+`;
+
+const BannerImage = styled.img`
+  width: 100%;
+  height: auto;
+
+  display: block;
+  object-fit: cover;
+`;
+
+const BannerTextOverlay = styled.div`
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  right: 24px;
+`;
+
+const BannerLabel = styled.p`
+  margin: 0;
+
+  color: #ffffff;
+
+  font-family: "Neulis Sans", "Pretendard Variable", Pretendard, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24px;
+`;
+
+const BannerTitle = styled.h2`
+  margin: 0;
+
+  color: #ffffff;
+
+  font-family: "Neulis Sans", "Pretendard Variable", Pretendard, sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 36px;
+`;
+
+const BannerDescription = styled.p`
+  margin: 8px 0 0;
+
+  color: #ffffff;
+
+  font-family: "Pretendard Variable", Pretendard, sans-serif;
+  font-size: 10px;
+  font-weight: 300;
+  line-height: 18px;
+`;
+
+const CustomButton = styled.button`
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+
+  padding: 2px 12px;
+  border-radius: 35px;
+
+  background: rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(14px) saturate(2.2) brightness(0.85);
+  -webkit-backdrop-filter: blur(14px) saturate(2.2) brightness(0.85);
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  cursor: pointer;
+  outline: none;
+  isolation: isolate;
+
+  box-shadow:
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -0.5px 0 rgba(0, 0, 0, 0.15);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 35px;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.7) 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      rgba(255, 255, 255, 0.7) 100%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+`;
+
+const CustomButtonText = styled.span`
+  position: relative;
+
+  color: var(--gray-50, #FAFAFA);
+
+  font-family: "Pretendard Variable", Pretendard, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+`;
+
+const CustomButtonArrow = styled.img`
+  position: relative;
+
+  width: 4px;
+  height: 9px;
+`;
+
+const SortTabRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 24px 20px 20px;
+  box-sizing: border-box;
+`;
+
+const SortTab = styled.button`
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
+
+  color: ${({ $active }) =>
+    $active ? "var(--gray-900, #141414)" : "var(--gray-700, #727272)"};
+
+  font-family: "Pretendard Variable", Pretendard, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+
+  cursor: pointer;
+`;
+
+const RankingGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 4px;
+  row-gap: 20px;
+
+  padding: 0 20px 60px;
+  box-sizing: border-box;
+`;
+
+const EditionPlaceholder = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 400px;
+
+  color: var(--gray-700, #727272);
+
+  font-family: "Pretendard Variable", Pretendard, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+`;
+
+export default function McmLabPage() {
+  const navigate = useNavigate();
+  const { mcmLabTab } = useOutletContext();
+
+  const [sortType, setSortType] = useState("ranking");
+  const [rankingList, setRankingList] = useState(dummyMcmLabRanking);
+
+  const sortedList = useMemo(() => {
+    const list = [...rankingList];
+    if (sortType === "ranking") {
+      return list.sort((a, b) => b.likes - a.likes);
+    }
+    return list.sort((a, b) => a.id - b.id);
+  }, [rankingList, sortType]);
+
+  const handleToggleLike = (id) => {
+    setRankingList((prev) =>
+      prev.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              isLiked: !item.isLiked,
+              likes: item.isLiked ? item.likes - 1 : item.likes + 1,
+            }
+          : item
+      )
+    );
+  };
+
+  if (mcmLabTab !== "lab") {
+    return <EditionPlaceholder>Lab Edition 준비 중입니다.</EditionPlaceholder>;
+  }
+
+  return (
+    <>
+      <BannerWrap>
+        <BannerImage src={bannerBg} alt="MCM Lab 배너" />
+        <BannerTextOverlay>
+          <BannerLabel>SEPTEMBER · MCM LAB</BannerLabel>
+          <BannerTitle>BOHO CHIC</BannerTitle>
+          <BannerDescription>
+            MCM LAB 에서 지금 나만의 가을을 커스텀 하세요.
+            <br />
+            빈티지 스웨이드를 포인트로 나만의 업사이클링 보호 시크
+            <br />
+            MCM 을 디자인하고 Lab Edition 의 주인공에 도전해보세요.
+          </BannerDescription>
+        </BannerTextOverlay>
+        <CustomButton type="button" onClick={() => navigate("/upcycle")}>
+          <CustomButtonText>커스텀 하러가기</CustomButtonText>
+          <CustomButtonArrow src={rightArrowWhite} alt="이동" />
+        </CustomButton>
+      </BannerWrap>
+
+      <SortTabRow>
+        <SortTab
+          type="button"
+          $active={sortType === "ranking"}
+          onClick={() => setSortType("ranking")}
+        >
+          현재 랭킹
+        </SortTab>
+        <SortTab
+          type="button"
+          $active={sortType === "latest"}
+          onClick={() => setSortType("latest")}
+        >
+          최신순
+        </SortTab>
+      </SortTabRow>
+
+      <RankingGrid>
+        {sortedList.map((item) => (
+          <RankingCard
+            key={item.id}
+            item={item}
+            onToggleLike={handleToggleLike}
+          />
+        ))}
+      </RankingGrid>
+    </>
+  );
+}

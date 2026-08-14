@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import Header from "../common/header/Header";
 import SubHeader from "../common/header/SubHeader";
+import McmLabHeader from "../common/header/McmLabHeader";
 import Footer from "../common/footer/Footer";
 import SideMenu from "../common/header/SideMenu";
 
@@ -47,7 +48,7 @@ const Main = styled.main`
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 
-  padding-top: 44px;
+  padding-top: ${({ $mcmLabPage }) => ($mcmLabPage ? "50px" : "44px")};
 
   padding-bottom: ${({ $hideFooter }) => ($hideFooter ? "0" : "86px")};
 
@@ -85,7 +86,10 @@ const ModalButtonArea = styled.div`
 export default function RootLayout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const element = useOutlet();
+  // MCM Lab 탭 상태 (MCM Lab / Lab Edition)
+  const [mcmLabTab, setMcmLabTab] = useState("lab");
+
+  const element = useOutlet({ mcmLabTab, setMcmLabTab });
 
   const mainRef = useRef(null);
   const prevScrollTop = useRef(0);
@@ -110,6 +114,9 @@ export default function RootLayout() {
 
   // 현재 문의하기 페이지인지 확인
   const isInquiryPage = location.pathname === "/inquiry";
+
+  // 현재 MCM Lab 페이지인지 확인
+  const isMcmLabPage = location.pathname === "/mcmlab";
 
   const isSubPage = isProfilePage || isOrderPage || isInquiryPage;
 
@@ -176,11 +183,13 @@ export default function RootLayout() {
           <SubHeader logo={logo} onBack={() => navigate("/main")} />
         ) : isInquiryPage ? (
           <SubHeader logo={logo} onBack={() => navigate(-1)} />
+        ) : isMcmLabPage ? (
+          <McmLabHeader activeTab={mcmLabTab} onTabChange={setMcmLabTab} />
         ) : (
           <Header $hidden={navHidden} onMenuClick={() => setIsMenuOpen(true)} />
         )}
 
-        <Main ref={mainRef} $hideFooter={isSubPage}>
+        <Main ref={mainRef} $hideFooter={isSubPage} $mcmLabPage={isMcmLabPage}>
           <AnimatePresence>
             <PageSlide
               key={location.pathname}
