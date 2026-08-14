@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import styled from "styled-components";
+import TransparentButton from "../../components/button/TransparentButton";
 import RankingCard from "./RankingCard";
+import LabEditionPage from "./LabEditionPage";
 import dummyMcmLabRanking from "../../data/dummyMcmLabRanking";
 import bannerBg from "../../assets/images/mcmlab/mcmlab_banner_bg.png";
-import rightArrowWhite from "../../assets/images/icons/rightArrowWhite.svg";
 
 const BannerWrap = styled.div`
   position: relative;
@@ -60,71 +61,10 @@ const BannerDescription = styled.p`
   line-height: 18px;
 `;
 
-const CustomButton = styled.button`
+const CustomButton = styled(TransparentButton)`
   position: absolute;
   right: 24px;
   bottom: 24px;
-
-  appearance: none;
-  -webkit-appearance: none;
-  border: none;
-
-  padding: 2px 12px;
-  border-radius: 35px;
-
-  background: rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(14px) saturate(2.2) brightness(0.85);
-  -webkit-backdrop-filter: blur(14px) saturate(2.2) brightness(0.85);
-
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-
-  cursor: pointer;
-  outline: none;
-  isolation: isolate;
-
-  box-shadow:
-    inset 0 0.5px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -0.5px 0 rgba(0, 0, 0, 0.15);
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 35px;
-    padding: 1px;
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.7) 0%,
-      rgba(255, 255, 255, 0.1) 50%,
-      rgba(255, 255, 255, 0.7) 100%
-    );
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-  }
-`;
-
-const CustomButtonText = styled.span`
-  position: relative;
-
-  color: var(--gray-50, #FAFAFA);
-
-  font-family: "Pretendard Variable", Pretendard, sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 20px;
-`;
-
-const CustomButtonArrow = styled.img`
-  position: relative;
-
-  width: 4px;
-  height: 9px;
 `;
 
 const SortTabRow = styled.div`
@@ -164,20 +104,6 @@ const RankingGrid = styled.div`
   box-sizing: border-box;
 `;
 
-const EditionPlaceholder = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  min-height: 400px;
-
-  color: var(--gray-700, #727272);
-
-  font-family: "Pretendard Variable", Pretendard, sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-`;
-
 export default function McmLabPage() {
   const navigate = useNavigate();
   const { mcmLabTab } = useOutletContext();
@@ -202,13 +128,13 @@ export default function McmLabPage() {
               isLiked: !item.isLiked,
               likes: item.isLiked ? item.likes - 1 : item.likes + 1,
             }
-          : item
-      )
+          : item,
+      ),
     );
   };
 
-  if (mcmLabTab !== "lab") {
-    return <EditionPlaceholder>Lab Edition 준비 중입니다.</EditionPlaceholder>;
+  if (mcmLabTab === "edition") {
+    return <LabEditionPage />;
   }
 
   return (
@@ -226,10 +152,12 @@ export default function McmLabPage() {
             MCM 을 디자인하고 Lab Edition 의 주인공에 도전해보세요.
           </BannerDescription>
         </BannerTextOverlay>
-        <CustomButton type="button" onClick={() => navigate("/upcycle")}>
-          <CustomButtonText>커스텀 하러가기</CustomButtonText>
-          <CustomButtonArrow src={rightArrowWhite} alt="이동" />
-        </CustomButton>
+        <CustomButton
+          type="button"
+          onClick={() => navigate("/upcycle")}
+          label="커스텀 하러가기"
+          iconAlt="이동"
+        />
       </BannerWrap>
 
       <SortTabRow>

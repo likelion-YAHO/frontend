@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
+import TransparentButton from "../../components/button/TransparentButton";
 import hero01 from "../../assets/images/hero/hero-01.png";
 import hero02 from "../../assets/images/hero/hero-02.png";
 import hero03 from "../../assets/images/hero/hero-03.png";
-import rightArrowWhite from "../../assets/images/icons/rightArrowWhite.svg";
 
 const baseImages = [hero01, hero02, hero03];
 const extendedImages = [...baseImages, hero01];
@@ -44,69 +44,13 @@ const TextOverlay = styled.div`
 `;
 
 const HeroText = styled.span`
-  color: var(--gray-50, #FAFAFA);
+  color: var(--gray-50, #fafafa);
   font-size: 32px;
   font-family: "Pretendard Variable";
   font-weight: 600;
   line-height: 40px;
   word-wrap: break-word;
   white-space: nowrap;
-`;
-
-const IndicatorText = styled.span`
-  color: var(--gray-50, #FAFAFA);
-  font-size: 14px;
-  font-family: "Pretendard Variable";
-  font-weight: 600;
-  line-height: 20px;
-  word-wrap: break-word;
-`;
-
-const ArrowIcon = styled.img`
-  width: 4px;
-  height: 9px;
-`;
-
-const IndicatorButton = styled.button`
-  position: relative;
-  appearance: none;
-  -webkit-appearance: none;
-  padding: 2px 12px;
-  border: none;
-  border-radius: 35px;
-  background: rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(14px) saturate(2.2) brightness(0.85);
-  -webkit-backdrop-filter: blur(14px) saturate(2.2) brightness(0.85);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  flex-shrink: 0;
-  outline: none;
-  isolation: isolate;
-  box-shadow:
-    inset 0 0.5px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -0.5px 0 rgba(0, 0, 0, 0.15);
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 35px;
-    padding: 1px;
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.7) 0%,
-      rgba(255, 255, 255, 0.1) 50%,
-      rgba(255, 255, 255, 0.7) 100%
-    );
-    -webkit-mask:
-      linear-gradient(#fff 0 0) content-box,
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-  }
 `;
 
 function HeroBanner() {
@@ -144,7 +88,10 @@ function HeroBanner() {
       <Track $index={currentIndex} $animate={animate}>
         {extendedImages.map((img, idx) => (
           <Slide key={idx}>
-            <HeroImage src={img} alt={`hero-${(idx % baseImages.length) + 1}`} />
+            <HeroImage
+              src={img}
+              alt={`hero-${(idx % baseImages.length) + 1}`}
+            />
           </Slide>
         ))}
       </Track>
@@ -153,12 +100,13 @@ function HeroBanner() {
           세대를 잇는 헤리티지, <br />
           나만의 방식으로
         </HeroText>
-        <IndicatorButton onClick={handleNext}>
-          <IndicatorText>
-            {displayIndex + 1} / {baseImages.length}
-          </IndicatorText>
-          <ArrowIcon src={rightArrowWhite} alt="next" />
-        </IndicatorButton>
+        <TransparentButton
+          type="button"
+          onClick={handleNext}
+          textProps={{ $fontSize: "14px" }}
+          label={`${displayIndex + 1} / ${baseImages.length}`}
+          iconAlt="next"
+        />
       </TextOverlay>
     </Wrapper>
   );
