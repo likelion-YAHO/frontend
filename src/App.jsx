@@ -15,9 +15,18 @@ import InquiryPage from "./pages/Inquiry/InquiryPage";
 function AnimatedRoutes() {
   const location = useLocation();
 
+  // /main, /profile, /orders, /inquiry는 RootLayout을 공유하는 페이지들이므로
+  // 이 페이지들끼리 전환될 때는 Routes의 key를 동일하게 유지해서
+  // RootLayout이 언마운트/리마운트되지 않도록 한다.
+  // (RootLayout 내부의 PageSlide 슬라이드 애니메이션이 정상 작동하려면 필수)
+  const layoutSharedPaths = ["/main", "/profile", "/orders", "/inquiry"];
+  const routeKey = layoutSharedPaths.includes(location.pathname)
+    ? "layout"
+    : location.pathname;
+
   return (
     <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
+      <Routes location={location} key={routeKey}>
         <Route
           path="/"
           element={
