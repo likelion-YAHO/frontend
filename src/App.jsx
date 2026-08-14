@@ -12,6 +12,7 @@ import OrderPage from "./pages/Order/OrderPage";
 import PageTransition from "./components/pageTransition/PageTransition";
 import InquiryPage from "./pages/Inquiry/InquiryPage";
 import McmLabPage from "./pages/McmLab/McmLabPage";
+import IntroduceUpc from "./pages/Introduce/IntroduceUpcyclePage";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -20,7 +21,14 @@ function AnimatedRoutes() {
   // 이 페이지들끼리 전환될 때는 Routes의 key를 동일하게 유지해서
   // RootLayout이 언마운트/리마운트되지 않도록 한다.
   // (RootLayout 내부의 PageSlide 슬라이드 애니메이션이 정상 작동하려면 필수)
-  const layoutSharedPaths = ["/main", "/profile", "/orders", "/inquiry", "/mcmlab"];
+  const layoutSharedPaths = [
+    "/main",
+    "/profile",
+    "/orders",
+    "/inquiry",
+    "/mcmlab",
+    "introduceupc",
+  ];
   const routeKey = layoutSharedPaths.includes(location.pathname)
     ? "layout"
     : location.pathname;
@@ -106,6 +114,14 @@ function AnimatedRoutes() {
             element={
               <PageTransition>
                 <McmLabPage />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/introduceupc"
+            element={
+              <PageTransition>
+                <IntroduceUpc />
               </PageTransition>
             }
           />

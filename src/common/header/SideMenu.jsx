@@ -209,8 +209,16 @@ export default function SideMenu({ user, onClose, onNavigate, onLogoutClick }) {
         </ProfileArea>
 
         <MenuList>
+          <MenuItem
+            type="button"
+            onClick={() => handleNavigate("/introduceupc")}
+          >
+            업사이클링 소개
+            <ArrowIcon src={rightArrow} alt="" />
+          </MenuItem>
+
           <MenuItem type="button">
-            MCM Lab
+            커스텀 매뉴얼
             <ArrowIcon src={rightArrow} alt="" />
           </MenuItem>
 
@@ -223,11 +231,6 @@ export default function SideMenu({ user, onClose, onNavigate, onLogoutClick }) {
             }
           >
             MCM 소개
-            <ArrowIcon src={rightArrow} alt="" />
-          </MenuItem>
-
-          <MenuItem type="button">
-            커스텀 매뉴얼
             <ArrowIcon src={rightArrow} alt="" />
           </MenuItem>
 
