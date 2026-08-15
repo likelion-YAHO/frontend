@@ -155,7 +155,7 @@ export default function McmLabPage() {
         </BannerTextOverlay>
         <CustomButton
           type="button"
-          onClick={() => navigate("/upcycle")}
+          onClick={() => navigate("/mcmlab/models")}
           label="커스텀 하러가기"
           iconAlt="이동"
         />
