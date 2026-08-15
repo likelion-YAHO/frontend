@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import SubHeader from "../../common/header/SubHeader";
 import IntentButton from "../../components/button/IntentButton";
+import LimitToast from "../../components/toast/LimitToast";
 import dummyMcmLabModels from "../../data/dummyMcmLabModels";
 
 const Screen = styled.div`
@@ -23,7 +24,7 @@ const Page = styled.div`
   max-width: 390px;
   min-height: 100vh;
 
-  padding: 68px 20px 0;
+  padding: 44px 20px 0;
   box-sizing: border-box;
 
   background: #ffffff;
@@ -49,7 +50,7 @@ const ModelGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   column-gap: 4px;
-  row-gap: 24px;
+  row-gap: 5px;
 
   flex: 1;
 `;
@@ -69,7 +70,8 @@ const ModelCard = styled.button`
 `;
 
 const ModelName = styled.p`
-  margin: 0 0 8px;
+  margin: 0 0 1px;
+  padding: 0 8px;
 
   color: var(--gray-900, #141414);
 
@@ -85,10 +87,10 @@ const ModelImageWrap = styled.div`
 
   box-sizing: border-box;
 
-  background: #f2f2f2;
+  background: #ffffff;
 
   border: ${({ $selected }) =>
-    $selected ? "1px solid var(--gray-900, #141414)" : "2px solid transparent"};
+    $selected ? "1px solid var(--gray-900, #141414)" : "1px solid transparent"};
 
   overflow: hidden;
 `;
@@ -113,8 +115,14 @@ const SubmitButtonArea = styled.div`
 export default function ModelSelectPage() {
   const navigate = useNavigate();
   const [selectedId, setSelectedId] = useState(null);
+  const [toastMessage, setToastMessage] = useState(null);
 
   const handleComplete = () => {
+    if (selectedId === null) {
+      setToastMessage("커스텀 할 모델을 선택해주세요.");
+      return;
+    }
+
     const selectedModel = dummyMcmLabModels.find(
       (model) => model.id === selectedId
     );
@@ -149,11 +157,16 @@ export default function ModelSelectPage() {
             width="350px"
             height="44px"
             onClick={handleComplete}
-            disabled={selectedId === null}
           >
             선택 완료
           </IntentButton>
         </SubmitButtonArea>
+
+        <LimitToast
+          visible={!!toastMessage}
+          message={toastMessage}
+          onHide={() => setToastMessage(null)}
+        />
       </Page>
     </Screen>
   );

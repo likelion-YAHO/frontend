@@ -14,6 +14,7 @@ import InquiryPage from "./pages/Inquiry/InquiryPage";
 import McmLabPage from "./pages/McmLab/McmLabPage";
 import ModelSelectPage from "./pages/McmLab/ModelSelectPage";
 import DesignGuidePage from "./pages/McmLab/DesignGuidePage";
+import McmLabCustomProductPage from "./pages/McmLab/CustomProductPage";
 import IntroduceUpc from "./pages/Introduce/IntroduceUpcyclePage";
 
 function AnimatedRoutes() {
@@ -91,6 +92,14 @@ function AnimatedRoutes() {
           element={
             <PageTransition>
               <DesignGuidePage />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/mcmlab/custom-product"
+          element={
+            <PageTransition>
+              <McmLabCustomProductPage />
             </PageTransition>
           }
         />

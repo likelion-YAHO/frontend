@@ -87,7 +87,10 @@ export default function RootLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   // MCM Lab 탭 상태 (MCM Lab / Lab Edition)
-  const [mcmLabTab, setMcmLabTab] = useState("lab");
+  // /mcmlab로 navigate 시 location.state.initialTab이 있으면 해당 탭으로 시작 (예: 완료 모달에서 Lab Edition으로 바로 이동)
+  const [mcmLabTab, setMcmLabTab] = useState(
+    location.state?.initialTab ?? "lab"
+  );
 
   const element = useOutlet({ mcmLabTab, setMcmLabTab });
 

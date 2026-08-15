@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
@@ -8,8 +8,7 @@ import ImageSelector from "../../components/imageSelector/ImageSelector";
 import ColorSwatchPicker from "../../components/colorSwatchPicker/ColorSwatchPicker";
 
 import dummyAnalysisResult from "../../data/dummyAnalysisResult";
-
-import leftArrowGray from "../../assets/images/icons/leftArrowGray.svg";
+import McmLabCompleteModal from "../../components/mcmLabCompleteModal/McmLabCompleteModal";
 
 const Screen = styled.div`
   width: 100%;
@@ -37,59 +36,12 @@ const ContentArea = styled.div`
   flex: 1;
 `;
 
-const PhotoPreviewWrapper = styled.div`
-  position: relative;
-`;
-
-const PhotoPreviewGrid = styled.div`
-  display: flex;
-  gap: 4px;
-  overflow-x: auto;
-
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
-`;
-
-const PhotoPreviewImage = styled.img`
+const DesignImage = styled.img`
   width: 350px;
   height: 400px;
-  flex-shrink: 0;
 
   object-fit: cover;
   border-radius: 2px;
-
-  scroll-snap-align: center;
-`;
-
-const PhotoArrowButton = styled.button`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%)
-    ${({ $direction }) => ($direction === "right" ? "rotate(180deg)" : "")};
-  ${({ $direction }) => ($direction === "left" ? "left: 10px;" : "right: 10px;")}
-
-  width: 24px;
-  height: 24px;
-  padding: 0;
-
-  border: none;
-  background: transparent;
-
-  cursor: pointer;
-  z-index: 1;
-`;
-
-const PhotoArrowIcon = styled.img`
-  width: 4px;
-  height: 16px;
-  pointer-events: none;
 `;
 
 const TagArea = styled.div`
@@ -125,7 +77,7 @@ const Tag = styled.span`
 `;
 
 const Section = styled.section`
-  margin-top: 50px;
+  margin-top: 60px;
 `;
 
 const SectionTitle = styled.h2`
@@ -160,10 +112,12 @@ const AddOnLabel = styled.p`
   line-height: 20px;
 `;
 
+/* AI 커스텀 추천 태그 영역 ↔ 컬러 섹션 간격: 50px (스펙 확인됨) */
 const ColorSection = styled(Section)`
-  margin-top: 60px;
+  margin-top: 50px;
 `;
 
+/* 컬러 섹션 ↔ 추가 상품 섹션 간격: 60px */
 const AddOnSection = styled(Section)`
   margin-top: 60px;
 `;
@@ -183,36 +137,27 @@ export default function CustomProductPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // /upcycle에서 navigate state로 전달된 분석 결과/사진, 없으면 더미로 폴백
-  const analysisResult = location.state?.analysisResult ?? dummyAnalysisResult;
-  const photos = location.state?.photos ?? [];
+  // DesignGuidePage에서 navigate state로 전달된 선택 모델/디자인, 없으면 더미로 폴백
+  const model = location.state?.model;
+  const design = location.state?.design;
+  const analysisResult = dummyAnalysisResult;
 
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedStitchColor, setSelectedStitchColor] = useState(null);
   const [selectedMetalColor, setSelectedMetalColor] = useState(null);
   const [selectedCharm, setSelectedCharm] = useState(null);
   const [selectedScarf, setSelectedScarf] = useState(null);
-
-  const photoScrollRef = useRef(null);
-  const PHOTO_SCROLL_STEP = 354; // 사진 너비(350px) + gap(4px)
-
-  const scrollPhotosPrev = () => {
-    photoScrollRef.current?.scrollBy({
-      left: -PHOTO_SCROLL_STEP,
-      behavior: "smooth",
-    });
-  };
-
-  const scrollPhotosNext = () => {
-    photoScrollRef.current?.scrollBy({
-      left: PHOTO_SCROLL_STEP,
-      behavior: "smooth",
-    });
-  };
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
 
   const handleComplete = () => {
-    // TODO: 커스텀 선택 결과를 실제 결제 요약 데이터로 변환해 전달 (추후 이슈)
-    navigate("/upcycle/reservation");
+    setIsCompleteModalOpen(true);
+  };
+
+  const goToLabEdition = () => {
+    navigate("/mcmlab", { state: { initialTab: "edition" } });
+  };
+
+  const goToMcmLabHome = () => {
+    navigate("/mcmlab");
   };
 
   return (
@@ -221,37 +166,11 @@ export default function CustomProductPage() {
         <SubHeader title="제품 커스텀" onBack={() => navigate(-1)} />
 
         <ContentArea>
-          {photos.length > 0 && (
-            <PhotoPreviewWrapper>
-              <PhotoPreviewGrid ref={photoScrollRef}>
-                {photos.map((photo) => (
-                  <PhotoPreviewImage
-                    key={photo.id}
-                    src={photo.url}
-                    alt="업로드된 제품 사진"
-                  />
-                ))}
-              </PhotoPreviewGrid>
-
-              {photos.length > 1 && (
-                <>
-                  <PhotoArrowButton
-                    type="button"
-                    $direction="left"
-                    onClick={scrollPhotosPrev}
-                  >
-                    <PhotoArrowIcon src={leftArrowGray} alt="이전 사진" />
-                  </PhotoArrowButton>
-                  <PhotoArrowButton
-                    type="button"
-                    $direction="right"
-                    onClick={scrollPhotosNext}
-                  >
-                    <PhotoArrowIcon src={leftArrowGray} alt="다음 사진" />
-                  </PhotoArrowButton>
-                </>
-              )}
-            </PhotoPreviewWrapper>
+          {(design || model?.image) && (
+            <DesignImage
+              src={design ?? model?.image}
+              alt={model?.name ?? "커스텀 디자인"}
+            />
           )}
 
           <TagArea>
@@ -262,17 +181,6 @@ export default function CustomProductPage() {
               ))}
             </TagList>
           </TagArea>
-
-          <Section>
-            <SectionTitle>업사이클 가능한 제품</SectionTitle>
-            <SelectorArea>
-              <ImageSelector
-                items={analysisResult.upcyclableProducts}
-                value={selectedProduct}
-                onChange={setSelectedProduct}
-              />
-            </SelectorArea>
-          </Section>
 
           <ColorSection>
             <SectionTitle>컬러</SectionTitle>
@@ -337,6 +245,12 @@ export default function CustomProductPage() {
             선택 완료
           </IntentButton>
         </SubmitButtonArea>
+
+        <McmLabCompleteModal
+          isOpen={isCompleteModalOpen}
+          onConfirm={goToLabEdition}
+          onAutoRedirect={goToMcmLabHome}
+        />
       </Page>
     </Screen>
   );
