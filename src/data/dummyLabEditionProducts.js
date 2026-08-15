@@ -36,6 +36,17 @@ const dummyLabEditionProducts = [
     size: "Medium",
     stock: 0,
   },
+  {
+    id: 4,
+    image: bag3,
+    name: "Ella Crossbody Bag",
+    edition: "Summer Edition",
+    colorName: "Sand",
+    colorHex: "#D8C7A1",
+    price: 1350000,
+    size: "Medium",
+    stock: 0,
+  },
 ];
 
 export default dummyLabEditionProducts;

@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const Card = styled.div`
@@ -128,8 +129,13 @@ const ColorChip = styled.div`
 `;
 
 export default function LabEditionCard({ product }) {
+  const navigate = useNavigate();
+
   return (
-    <Card>
+    <Card
+      type="button"
+      onClick={() => navigate(`/mcmlab/edition/${product.id}`)}
+    >
       <ImageArea>
         <EditionLabel>Lab Edition</EditionLabel>
 

@@ -135,7 +135,7 @@ export default function LabEditionPage() {
           type="button"
           label="쇼핑백"
           iconAlt="이동"
-          onClick={() => navigate("/shop")}
+          onClick={() => navigate("/shopping-bag")}
         />
       </BannerWrap>
 

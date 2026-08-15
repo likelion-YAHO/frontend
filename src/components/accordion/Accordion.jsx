@@ -7,11 +7,17 @@ import downArrow from "../../assets/images/icons/downArrow.svg";
 const AccordionContainer = styled.div`
   width: 100%;
   background: #ffffff;
+
+  border-top: ${({ $border }) => ($border ? "1px solid #141414" : "none")};
+
+  &:last-child {
+    border-bottom: ${({ $border }) => ($border ? "1px solid #141414" : "none")};
+  }
 `;
 
 const AccordionHeader = styled.button`
   width: 100%;
-  height: 48px;
+  height: ${({ $height }) => $height};
 
   padding: 12px 20px;
   box-sizing: border-box;
@@ -24,7 +30,7 @@ const AccordionHeader = styled.button`
 
   background: ${({ $dark }) => ($dark ? "#141414" : "#fafafa")};
 
-  font-size: 16px;
+  font-size: ${({ $fontSize }) => $fontSize};
   font-weight: 600;
   line-height: 24px;
 
@@ -54,25 +60,47 @@ const AccordionContent = styled.div`
   background: #f6f6f6;
 `;
 
-function Accordion({ title, children, dark = false }) {
+function Accordion({
+  title,
+  children,
+  dark = false,
+  border = false,
+  fontSize = "16px",
+  height = "48px",
+  onClose,
+}) {
   const [isOpen, setIsOpen] = useState(false);
 
+  const handleToggle = () => {
+    setIsOpen((prev) => !prev);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+
+    if (onClose) {
+      onClose();
+    }
+  };
+
   return (
-    <AccordionContainer>
+    <AccordionContainer $border={border}>
       <AccordionHeader
         type="button"
+        onClick={handleToggle}
         $dark={dark}
-        onClick={() => setIsOpen((prev) => !prev)}
+        $fontSize={fontSize}
+        $height={height}
       >
         <span>{title}</span>
 
-        <ArrowIcon src={isOpen ? downArrow : rightArrow} alt="" $dark={dark} />
+        <ArrowIcon src={isOpen ? downArrow : rightArrow} alt="" />
       </AccordionHeader>
 
       {isOpen && (
         <AccordionContent>
           {typeof children === "function"
-            ? children(() => setIsOpen(false))
+            ? children({ close: handleClose })
             : children}
         </AccordionContent>
       )}

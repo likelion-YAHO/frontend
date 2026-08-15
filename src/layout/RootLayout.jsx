@@ -13,6 +13,7 @@ import Modal from "../components/modal/Modal";
 import IntentButton from "../components/button/IntentButton";
 
 import logo from "../assets/images/icons/Mcm_icon.svg";
+import shoppingBagIcon from "../assets/images/icons/shoppingbag_icon.svg";
 
 const Screen = styled.div`
   width: 100%;
@@ -21,7 +22,7 @@ const Screen = styled.div`
   display: flex;
   justify-content: center;
 
-  background: #f2f2f2;
+  background: #fbfbfb;
 `;
 
 const Frame = styled.div`
@@ -118,7 +119,12 @@ export default function RootLayout() {
   // 현재 MCM Lab 페이지인지 확인
   const isMcmLabPage = location.pathname === "/mcmlab";
 
-  const isSubPage = isProfilePage || isOrderPage || isInquiryPage;
+  // 현재 Lab Edition 페이지인지 확인
+  const isLabEditionDetailPage =
+    location.pathname.startsWith("/mcmlab/edition/");
+
+  const isSubPage =
+    isProfilePage || isOrderPage || isInquiryPage || isLabEditionDetailPage;
 
   useEffect(() => {
     const el = mainRef.current;
@@ -185,6 +191,14 @@ export default function RootLayout() {
           <SubHeader logo={logo} onBack={() => navigate(-1)} />
         ) : isMcmLabPage ? (
           <McmLabHeader activeTab={mcmLabTab} onTabChange={setMcmLabTab} />
+        ) : isLabEditionDetailPage ? (
+          <SubHeader
+            title="Lab Edition"
+            onBack={() => navigate(-1)}
+            rightIcon={shoppingBagIcon}
+            rightAlt="쇼핑백"
+            onRightClick={() => navigate("/shopping-bag")}
+          />
         ) : (
           <Header $hidden={navHidden} onMenuClick={() => setIsMenuOpen(true)} />
         )}
