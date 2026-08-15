@@ -14,6 +14,9 @@ import InquiryPage from "./pages/Inquiry/InquiryPage";
 import McmLabPage from "./pages/McmLab/McmLabPage";
 import LabEditionDetailPage from "./pages/Labedition/LabEditionDetailPage";
 import ShoppingBagPage from "./pages/Labedition/ShoppingBagPage";
+import ModelSelectPage from "./pages/McmLab/ModelSelectPage";
+import DesignGuidePage from "./pages/McmLab/DesignGuidePage";
+import McmLabCustomProductPage from "./pages/McmLab/CustomProductPage";
 import IntroduceUpc from "./pages/Introduce/IntroduceUpcyclePage";
 
 function AnimatedRoutes() {
@@ -75,6 +78,30 @@ function AnimatedRoutes() {
           element={
             <PageTransition>
               <ReservationPage />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/mcmlab/models"
+          element={
+            <PageTransition>
+              <ModelSelectPage />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/mcmlab/design-guide"
+          element={
+            <PageTransition>
+              <DesignGuidePage />
+            </PageTransition>
+          }
+        />
+        <Route
+          path="/mcmlab/custom-product"
+          element={
+            <PageTransition>
+              <McmLabCustomProductPage />
             </PageTransition>
           }
         />
