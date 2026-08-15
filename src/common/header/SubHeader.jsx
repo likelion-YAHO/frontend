@@ -62,7 +62,35 @@ const Logo = styled.img`
   object-fit: contain;
 `;
 
-export default function SubHeader({ title, logo, onBack }) {
+const RightButton = styled(IconButton)`
+  position: absolute;
+  right: 14px;
+
+  width: 24px;
+  height: 24px;
+
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const RightIcon = styled.img`
+  width: 20px;
+  height: 20px;
+
+  object-fit: contain;
+`;
+
+export default function SubHeader({
+  title,
+  logo,
+  onBack,
+  rightIcon,
+  onRightClick,
+  rightAlt = "",
+}) {
   return (
     <HeaderContainer>
       <BackButton type="button" onClick={onBack}>
@@ -70,6 +98,12 @@ export default function SubHeader({ title, logo, onBack }) {
       </BackButton>
 
       {logo ? <Logo src={logo} alt="MCM" /> : <Title>{title}</Title>}
+
+      {rightIcon && (
+        <RightButton type="button" onClick={onRightClick}>
+          <RightIcon src={rightIcon} alt={rightAlt} />
+        </RightButton>
+      )}
     </HeaderContainer>
   );
 }
