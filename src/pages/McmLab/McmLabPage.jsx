@@ -3,7 +3,7 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import styled from "styled-components";
 import TransparentButton from "../../components/button/TransparentButton";
 import RankingCard from "./RankingCard";
-import LabEditionPage from "./LabEditionPage";
+import LabEditionPage from "../Labedition/LabEditionPage";
 import dummyMcmLabRanking from "../../data/dummyMcmLabRanking";
 import bannerBg from "../../assets/images/mcmlab/mcmlab_banner_bg.png";
 
@@ -16,6 +16,7 @@ const BannerWrap = styled.div`
 const BannerImage = styled.img`
   width: 100%;
   height: auto;
+  margin-top: 24px;
 
   display: block;
   object-fit: cover;
