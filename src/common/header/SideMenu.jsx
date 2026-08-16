@@ -179,9 +179,9 @@ export default function SideMenu({ user, onClose, onNavigate, onLogoutClick }) {
             <ProfileIcon src={profileIcon} alt="프로필" />
 
             <UserText>
-              <UserName>{user?.name} 님</UserName>
+              <UserName>{user?.nickname} 님</UserName>
 
-              <UserId>{user?.loginId}</UserId>
+              <UserId>{user?.email}</UserId>
             </UserText>
 
             <LogoutButton type="button" onClick={onLogoutClick}>
