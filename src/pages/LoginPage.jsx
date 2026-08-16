@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
@@ -190,6 +190,21 @@ export default function LoginPage() {
     e.preventDefault();
     handleLogin();
   };
+
+  // 로그인 실패 모달이 열려 있을 때 Enter 키로 "다시 시도하기" 버튼과 동일하게 동작
+  useEffect(() => {
+    if (!isLoginError) return undefined;
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        setIsLoginError(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isLoginError]);
 
   return (
     <Page>
