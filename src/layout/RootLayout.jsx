@@ -15,6 +15,8 @@ import IntentButton from "../components/button/IntentButton";
 import logo from "../assets/images/icons/Mcm_icon.svg";
 import shoppingBagIcon from "../assets/images/icons/shoppingbag_icon.svg";
 
+import { logout } from "../api/auth";
+
 const Screen = styled.div`
   width: 100%;
   height: 100vh;
@@ -90,7 +92,7 @@ export default function RootLayout() {
   // MCM Lab 탭 상태 (MCM Lab / Lab Edition)
   // /mcmlab로 navigate 시 location.state.initialTab이 있으면 해당 탭으로 시작 (예: 완료 모달에서 Lab Edition으로 바로 이동)
   const [mcmLabTab, setMcmLabTab] = useState(
-    location.state?.initialTab ?? "lab"
+    location.state?.initialTab ?? "lab",
   );
 
   const element = useOutlet({ mcmLabTab, setMcmLabTab });
@@ -171,15 +173,19 @@ export default function RootLayout() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("로그아웃 요청 실패:", error);
+    } finally {
+      setIsLogoutModalOpen(false);
+      setIsMenuOpen(false);
 
-    setIsLogoutModalOpen(false);
-    setIsMenuOpen(false);
-
-    navigate("/login", {
-      replace: true,
-    });
+      navigate("/login", {
+        replace: true,
+      });
+    }
   };
 
   return (
@@ -197,13 +203,18 @@ export default function RootLayout() {
         ) : isLabEditionDetailPage ? (
           <SubHeader
             title="Lab Edition"
-            onBack={() => navigate("/mcmlab", { state: { initialTab: "edition" } })}
+            onBack={() =>
+              navigate("/mcmlab", { state: { initialTab: "edition" } })
+            }
             rightIcon={shoppingBagIcon}
             rightAlt="쇼핑백"
             onRightClick={() => navigate("/shopping-bag")}
           />
         ) : (
-          <Header $hidden={navHidden} onMenuClick={() => setIsMenuOpen((prev) => !prev)} />
+          <Header
+            $hidden={navHidden}
+            onMenuClick={() => setIsMenuOpen((prev) => !prev)}
+          />
         )}
 
         <Main ref={mainRef} $hideFooter={isSubPage} $mcmLabPage={isMcmLabPage}>
