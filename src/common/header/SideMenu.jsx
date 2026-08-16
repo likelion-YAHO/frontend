@@ -179,9 +179,9 @@ export default function SideMenu({ user, onClose, onNavigate, onLogoutClick }) {
             <ProfileIcon src={profileIcon} alt="프로필" />
 
             <UserText>
-              <UserName>{user?.name} 님</UserName>
+              <UserName>{user?.nickname} 님</UserName>
 
-              <UserId>{user?.loginId}</UserId>
+              <UserId>{user?.email}</UserId>
             </UserText>
 
             <LogoutButton type="button" onClick={onLogoutClick}>
@@ -213,12 +213,12 @@ export default function SideMenu({ user, onClose, onNavigate, onLogoutClick }) {
             type="button"
             onClick={() => handleNavigate("/introduceupc")}
           >
-            업사이클링 소개
+            MCM 업사이클 헤리티지
             <ArrowIcon src={rightArrow} alt="" />
           </MenuItem>
 
           <MenuItem type="button">
-            커스텀 매뉴얼
+            MCM Lab & 업사이클 매뉴얼
             <ArrowIcon src={rightArrow} alt="" />
           </MenuItem>
 

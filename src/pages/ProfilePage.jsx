@@ -132,9 +132,9 @@ export default function ProfilePage() {
           <ProfileIcon src={profileIcon} alt="프로필" />
 
           <UserText>
-            <UserName>{user?.name} 님</UserName>
+            <UserName>{user?.nickname} 님</UserName>
 
-            <UserId>{user?.loginId}</UserId>
+            <UserId>{user?.email}</UserId>
           </UserText>
         </UserInfo>
 
