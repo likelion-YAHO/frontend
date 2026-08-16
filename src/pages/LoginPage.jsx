@@ -7,11 +7,11 @@ import IntentButton from "../components/button/IntentButton";
 
 import Modal from "../components/modal/Modal";
 
-import mockUsers from "../data/dummyUsers";
-
 import logo from "../assets/images/icons/Mcm_icon.svg";
 import googleIcon from "../assets/images/icons/Google_icon.svg";
 import errorIcon from "../assets/images/icons/loginError_icon.svg";
+
+import { login } from "../api/auth";
 
 const Page = styled.div`
   width: 100%;
@@ -166,26 +166,22 @@ const ErrorIcon = styled.img`
 export default function LoginPage() {
   const navigate = useNavigate();
 
-  const [loginId, setLoginId] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const [isLoginError, setIsLoginError] = useState(false);
 
-  const handleLogin = () => {
-    const matchedUser = mockUsers.find(
-      (user) => user.loginId === loginId && user.password === password,
-    );
-
-    if (matchedUser) {
-      localStorage.setItem("user", JSON.stringify(matchedUser));
+  const handleLogin = async () => {
+    try {
+      await login(email, password);
 
       navigate("/main");
-      return;
+    } catch (error) {
+      console.error("로그인 실패:", error);
+
+      setIsLoginError(true);
     }
-
-    setIsLoginError(true);
   };
-
   const handleSubmit = (e) => {
     e.preventDefault();
     handleLogin();
@@ -216,9 +212,9 @@ export default function LoginPage() {
             width="318px"
             height="44px"
             fontSize="14px"
-            placeholder="아이디"
-            value={loginId}
-            onChange={(e) => setLoginId(e.target.value)}
+            placeholder="이메일"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
 
           <TextInput
