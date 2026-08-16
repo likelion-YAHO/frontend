@@ -14,6 +14,9 @@ export const login = async (email, password) => {
   if (data?.accessToken) {
     localStorage.setItem("accessToken", data.accessToken);
   }
+  if (data?.refreshToken) {
+    localStorage.setItem("refreshToken", data.refreshToken);
+  }
   if (data?.user) {
     localStorage.setItem("user", JSON.stringify(data.user));
   }
@@ -23,10 +26,15 @@ export const login = async (email, password) => {
 
 // 로그아웃
 export const logout = async () => {
+  const refreshToken = localStorage.getItem("refreshToken");
+
   try {
-    await apiClient.post("/api/auth/logout");
+    await apiClient.post("/api/auth/logout", {
+      refreshToken,
+    });
   } finally {
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
   }
 };
