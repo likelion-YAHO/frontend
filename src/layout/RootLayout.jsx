@@ -197,13 +197,13 @@ export default function RootLayout() {
         ) : isLabEditionDetailPage ? (
           <SubHeader
             title="Lab Edition"
-            onBack={() => navigate(-1)}
+            onBack={() => navigate("/mcmlab", { state: { initialTab: "edition" } })}
             rightIcon={shoppingBagIcon}
             rightAlt="쇼핑백"
             onRightClick={() => navigate("/shopping-bag")}
           />
         ) : (
-          <Header $hidden={navHidden} onMenuClick={() => setIsMenuOpen(true)} />
+          <Header $hidden={navHidden} onMenuClick={() => setIsMenuOpen((prev) => !prev)} />
         )}
 
         <Main ref={mainRef} $hideFooter={isSubPage} $mcmLabPage={isMcmLabPage}>
