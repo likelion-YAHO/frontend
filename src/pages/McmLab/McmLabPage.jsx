@@ -1,11 +1,24 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import styled from "styled-components";
 import TransparentButton from "../../components/button/TransparentButton";
 import RankingCard from "./RankingCard";
 import LabEditionPage from "../Labedition/LabEditionPage";
-import dummyMcmLabRanking from "../../data/dummyMcmLabRanking";
 import bannerBg from "../../assets/images/mcmlab/mcmlab_banner_bg.png";
+import { getCurrentMission, getDesigns, toggleDesignLike } from "../../api/lab";
+
+const SORT_TYPE_TO_API_SORT = {
+  ranking: "popular",
+  latest: "latest",
+};
+
+// 서버가 imageUrl을 상대경로("/xxx.png")로 내려주는 경우 base URL과 조합한다.
+// 이미 완전한 URL("https://...")로 오는 경우는 그대로 사용한다.
+const resolveImageUrl = (path) => {
+  if (!path) return path;
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `${import.meta.env.VITE_API_BASE_URL}${path}`;
+};
 
 const BannerWrap = styled.div`
   position: relative;
@@ -105,34 +118,121 @@ const RankingGrid = styled.div`
   box-sizing: border-box;
 `;
 
+const StatusText = styled.p`
+  margin: 0;
+  padding: 0 20px 60px;
+
+  color: var(--gray-700, #727272);
+
+  font-family: "Pretendard Variable", Pretendard, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+`;
+
 export default function McmLabPage() {
   const navigate = useNavigate();
   const { mcmLabTab } = useOutletContext();
 
+  const [mission, setMission] = useState(null);
+
   const [sortType, setSortType] = useState("ranking");
-  const [rankingList, setRankingList] = useState(dummyMcmLabRanking);
+  const [rankingList, setRankingList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
-  const sortedList = useMemo(() => {
-    const list = [...rankingList];
-    if (sortType === "ranking") {
-      return list.sort((a, b) => b.likes - a.likes);
-    }
-    return list.sort((a, b) => a.id - b.id);
-  }, [rankingList, sortType]);
+  useEffect(() => {
+    let isMounted = true;
 
-  const handleToggleLike = (id) => {
+    const fetchMission = async () => {
+      try {
+        const data = await getCurrentMission();
+        if (isMounted) setMission(data);
+      } catch {
+        // 배너는 부가 정보이므로 실패해도 화면 전체를 막지 않는다.
+      }
+    };
+
+    fetchMission();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchDesigns = async () => {
+      setIsLoading(true);
+      setLoadError(false);
+
+      try {
+        const data = await getDesigns(SORT_TYPE_TO_API_SORT[sortType]);
+        if (!isMounted) return;
+
+        const mapped = (data ?? []).map((design) => ({
+          id: design.id,
+          name: design.designName,
+          image: resolveImageUrl(design.imageUrl),
+          likes: design.likesCount ?? 0,
+          // 목록 조회 API는 "내가 좋아요 했는지" 여부를 내려주지 않아
+          // 초기값은 false로 시작하고, 토글 시 서버 응답으로 갱신한다.
+          isLiked: false,
+        }));
+
+        setRankingList(mapped);
+      } catch {
+        if (isMounted) setLoadError(true);
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    fetchDesigns();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [sortType]);
+
+  const handleToggleLike = useCallback(async (id) => {
+    // 연속 클릭으로 인한 중복 요청 방지
     setRankingList((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              isLiked: !item.isLiked,
-              likes: item.isLiked ? item.likes - 1 : item.likes + 1,
-            }
-          : item,
-      ),
+      prev.map((item) => (item.id === id ? { ...item, isToggling: true } : item)),
     );
-  };
+
+    try {
+      const result = await toggleDesignLike(id);
+      setRankingList((prev) =>
+        prev.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                isLiked: result.liked,
+                likes: result.totalLikes,
+                isToggling: false,
+              }
+            : item,
+        ),
+      );
+    } catch {
+      setRankingList((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, isToggling: false } : item,
+        ),
+      );
+    }
+  }, []);
+
+  const handleToggleLikeGuarded = useCallback(
+    (id) => {
+      const target = rankingList.find((item) => item.id === id);
+      if (target?.isToggling) return;
+      handleToggleLike(id);
+    },
+    [rankingList, handleToggleLike],
+  );
 
   if (mcmLabTab === "edition") {
     return <LabEditionPage />;
@@ -143,15 +243,11 @@ export default function McmLabPage() {
       <BannerWrap>
         <BannerImage src={bannerBg} alt="MCM Lab 배너" />
         <BannerTextOverlay>
-          <BannerLabel>SEPTEMBER · MCM LAB</BannerLabel>
-          <BannerTitle>BOHO CHIC</BannerTitle>
-          <BannerDescription>
-            MCM LAB 에서 지금 나만의 가을을 커스텀 하세요.
-            <br />
-            빈티지 스웨이드를 포인트로 나만의 업사이클링 보호 시크
-            <br />
-            MCM 을 디자인하고 Lab Edition 의 주인공에 도전해보세요.
-          </BannerDescription>
+          <BannerLabel>
+            {mission?.targetMonth ? `${mission.targetMonth} · MCM LAB` : "MCM LAB"}
+          </BannerLabel>
+          <BannerTitle>{mission?.title ?? ""}</BannerTitle>
+          <BannerDescription>{mission?.description ?? ""}</BannerDescription>
         </BannerTextOverlay>
         <CustomButton
           type="button"
@@ -178,15 +274,24 @@ export default function McmLabPage() {
         </SortTab>
       </SortTabRow>
 
-      <RankingGrid>
-        {sortedList.map((item) => (
-          <RankingCard
-            key={item.id}
-            item={item}
-            onToggleLike={handleToggleLike}
-          />
-        ))}
-      </RankingGrid>
+      {isLoading && <StatusText>목록을 불러오는 중...</StatusText>}
+      {!isLoading && loadError && (
+        <StatusText>목록을 불러오지 못했습니다. 다시 시도해주세요.</StatusText>
+      )}
+      {!isLoading && !loadError && rankingList.length === 0 && (
+        <StatusText>아직 등록된 디자인이 없습니다.</StatusText>
+      )}
+      {!isLoading && !loadError && rankingList.length > 0 && (
+        <RankingGrid>
+          {rankingList.map((item) => (
+            <RankingCard
+              key={item.id}
+              item={item}
+              onToggleLike={handleToggleLikeGuarded}
+            />
+          ))}
+        </RankingGrid>
+      )}
     </>
   );
 }
