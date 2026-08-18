@@ -176,9 +176,8 @@ export default function McmLabPage() {
           name: design.designName,
           image: resolveImageUrl(design.imageUrl),
           likes: design.likesCount ?? 0,
-          // 목록 조회 API는 "내가 좋아요 했는지" 여부를 내려주지 않아
-          // 초기값은 false로 시작하고, 토글 시 서버 응답으로 갱신한다.
-          isLiked: false,
+          // 목록 조회 API가 liked 필드를 내려주므로 서버 값을 그대로 사용한다.
+          isLiked: design.liked ?? false,
         }));
 
         setRankingList(mapped);

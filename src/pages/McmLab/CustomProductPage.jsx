@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
@@ -8,12 +8,13 @@ import ImageSelector from "../../components/imageSelector/ImageSelector";
 import ColorSwatchPicker from "../../components/colorSwatchPicker/ColorSwatchPicker";
 import McmLabCompleteModal from "../../components/mcmLabCompleteModal/McmLabCompleteModal";
 
+import { useEffect } from "react";
 import {
   getPointColors,
   getMetalColors,
   getAddOnProducts,
 } from "../../api/catalog";
-import { createDesign } from "../../api/lab";
+import { createDesign, previewDesign } from "../../api/lab";
 
 // 서버가 imageUrl을 상대경로("/xxx.png")로 내려주는 경우 base URL과 조합한다.
 const resolveImageUrl = (path) => {
@@ -55,12 +56,67 @@ const ContentArea = styled.div`
   flex: 1;
 `;
 
+const DesignImageWrap = styled.div`
+  position: relative;
+`;
+
 const DesignImage = styled.img`
   width: 350px;
   height: 400px;
 
   object-fit: cover;
   border-radius: 2px;
+
+  filter: ${({ $dimmed }) => ($dimmed ? "brightness(0.7)" : "none")};
+`;
+
+const PreviewLoadingText = styled.p`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  margin: 0;
+  padding: 8px 16px;
+
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 500;
+`;
+
+const TagArea = styled.div`
+  margin-top: 10px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const TagLabel = styled.p`
+  margin: 0;
+  color: #141414;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+`;
+
+const TagList = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+`;
+
+const Tag = styled.span`
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: #141414;
+  color: #fafafa;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
 `;
 
 const Section = styled.section`
@@ -115,8 +171,17 @@ const StatusText = styled.p`
   line-height: 22px;
 `;
 
+const PreviewButtonArea = styled.div`
+  margin: 24px -20px 0;
+  padding: 0 20px;
+  box-sizing: border-box;
+
+  display: flex;
+  justify-content: center;
+`;
+
 const SubmitButtonArea = styled.div`
-  margin: 42px -20px 0;
+  margin: 10px -20px 0;
   padding: 10px 10px 72px;
   box-sizing: border-box;
 
@@ -134,6 +199,10 @@ export default function CustomProductPage() {
   const mission = location.state?.mission;
   const design = location.state?.design;
   const aiPrompt = location.state?.aiPrompt ?? "";
+  const recommendedOptions = location.state?.recommendedOptions ?? null;
+
+  // 화면에 실제로 보여줄 이미지. 처음엔 AI 생성 원본, 미리보기 적용 시 합성본으로 교체된다.
+  const [displayImage, setDisplayImage] = useState(design);
 
   const [pointColors, setPointColors] = useState([]);
   const [metalColors, setMetalColors] = useState([]);
@@ -146,6 +215,10 @@ export default function CustomProductPage() {
   const [selectedMetalColor, setSelectedMetalColor] = useState(null);
   const [selectedCharm, setSelectedCharm] = useState(null);
   const [selectedScarf, setSelectedScarf] = useState(null);
+
+  const [isPreviewing, setIsPreviewing] = useState(false);
+  const [previewError, setPreviewError] = useState(null);
+
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
@@ -207,6 +280,36 @@ export default function CustomProductPage() {
     };
   }, []);
 
+  const hasAnyOptionSelected =
+    selectedStitchColor || selectedMetalColor || selectedCharm || selectedScarf;
+
+  const handlePreview = async () => {
+    if (!design || !hasAnyOptionSelected) {
+      setPreviewError("미리보기를 적용할 옵션을 하나 이상 선택해주세요.");
+      return;
+    }
+
+    setIsPreviewing(true);
+    setPreviewError(null);
+
+    try {
+      const payload = {
+        sourceImageUrl: design,
+        ...(selectedStitchColor && { pointColor: selectedStitchColor }),
+        ...(selectedMetalColor && { metalColor: selectedMetalColor }),
+        ...(selectedCharm && { charmOptionId: selectedCharm }),
+        ...(selectedScarf && { scarfOptionId: selectedScarf }),
+      };
+
+      const result = await previewDesign(payload);
+      setDisplayImage(result.previewImageUrl);
+    } catch {
+      setPreviewError("미리보기 생성에 실패했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsPreviewing(false);
+    }
+  };
+
   const handleComplete = async () => {
     if (!mission?.id || !model?.code || !design) {
       setSubmitError("출품에 필요한 정보가 없습니다. 이전 단계부터 다시 진행해주세요.");
@@ -217,13 +320,17 @@ export default function CustomProductPage() {
     setSubmitError(null);
 
     try {
-      // designName/concept/usedMaterials는 화면 입력 UI가 없어 값이 있을 때만 전송한다.
-      // (팀 확인: 백엔드에서 해당 필드들을 필수에서 선택으로 변경 예정)
       const payload = {
         missionId: mission.id,
         baseProduct: model.code,
+        // 팀 확인: 서버가 필드 누락(undefined)은 처리하지 못하고 500 에러를 내므로,
+        // 화면 입력 UI가 없는 필드는 빈 문자열로라도 항상 채워서 보낸다.
+        designName: "",
+        concept: "",
+        usedMaterials: "",
         aiPrompt,
-        imageUrl: design,
+        // 미리보기를 적용했다면 합성 이미지를, 아니면 AI 생성 원본을 출품 이미지로 사용한다.
+        imageUrl: displayImage ?? design,
         ...(selectedStitchColor && { pointColor: selectedStitchColor }),
         ...(selectedMetalColor && { metalColor: selectedMetalColor }),
         ...(selectedCharm && { charmOptionId: selectedCharm }),
@@ -253,12 +360,33 @@ export default function CustomProductPage() {
         <SubHeader title="제품 커스텀" onBack={() => navigate(-1)} />
 
         <ContentArea>
-          {(design || model?.image) && (
-            <DesignImage
-              src={design ?? model?.image}
-              alt={model?.name ?? "커스텀 디자인"}
-            />
+          {(displayImage || model?.image) && (
+            <DesignImageWrap>
+              <DesignImage
+                src={displayImage ?? model?.image}
+                alt={model?.name ?? "커스텀 디자인"}
+                $dimmed={isPreviewing}
+              />
+              {isPreviewing && (
+                <PreviewLoadingText>미리보기 생성 중...</PreviewLoadingText>
+              )}
+            </DesignImageWrap>
           )}
+
+          {recommendedOptions &&
+            (recommendedOptions.charmName || recommendedOptions.scarfName) && (
+              <TagArea>
+                <TagLabel>AI 커스텀 추천</TagLabel>
+                <TagList>
+                  {recommendedOptions.charmName && (
+                    <Tag>#{recommendedOptions.charmName}</Tag>
+                  )}
+                  {recommendedOptions.scarfName && (
+                    <Tag>#{recommendedOptions.scarfName}</Tag>
+                  )}
+                </TagList>
+              </TagArea>
+            )}
 
           {isLoading && <StatusText>옵션을 불러오는 중...</StatusText>}
           {!isLoading && loadError && (
@@ -321,8 +449,21 @@ export default function CustomProductPage() {
             </>
           )}
 
+          {previewError && <StatusText>{previewError}</StatusText>}
           {submitError && <StatusText>{submitError}</StatusText>}
         </ContentArea>
+
+        <PreviewButtonArea>
+          <IntentButton
+            variant="white"
+            width="350px"
+            height="44px"
+            onClick={handlePreview}
+            disabled={isLoading || loadError || isPreviewing || !hasAnyOptionSelected}
+          >
+            {isPreviewing ? "미리보기 생성 중..." : "미리보기 적용"}
+          </IntentButton>
+        </PreviewButtonArea>
 
         <SubmitButtonArea>
           <IntentButton
@@ -330,7 +471,7 @@ export default function CustomProductPage() {
             width="350px"
             height="44px"
             onClick={handleComplete}
-            disabled={isLoading || loadError || isSubmitting}
+            disabled={isLoading || loadError || isSubmitting || isPreviewing}
           >
             {isSubmitting ? "출품 중..." : "선택 완료"}
           </IntentButton>

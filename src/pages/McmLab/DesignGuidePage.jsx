@@ -248,6 +248,7 @@ export default function DesignGuidePage() {
   const [designs, setDesigns] = useState([]);
   const [tryCount, setTryCount] = useState(0);
   const [selectedDesignIndex, setSelectedDesignIndex] = useState(0);
+  const [recommendedOptions, setRecommendedOptions] = useState(null);
 
   useEffect(() => {
     if (!model) {
@@ -297,6 +298,12 @@ export default function DesignGuidePage() {
       });
       setTryCount(data.tryCount ?? 0);
       setHasGenerated(true);
+      setRecommendedOptions({
+        charmId: data.recommendedCharmId ?? null,
+        charmName: data.recommendedCharmName ?? null,
+        scarfId: data.recommendedScarfId ?? null,
+        scarfName: data.recommendedScarfName ?? null,
+      });
     } catch {
       setToastMessage("디자인 생성에 실패했습니다. 다시 시도해주세요.");
     } finally {
@@ -334,6 +341,7 @@ export default function DesignGuidePage() {
         mission,
         design: selectedDesign,
         aiPrompt: guideText.trim(),
+        recommendedOptions,
       },
     });
   };

@@ -54,3 +54,22 @@ export const getCurrentMission = async () => {
   const response = await apiClient.get("/api/lab/missions/current");
   return response.data.data;
 };
+
+// 커스텀 미리보기 (generate 결과 이미지 + 포인트/메탈/추가상품 조합 합성)
+// payload: { sourceImageUrl, pointColor, metalColor, charmOptionId, scarfOptionId }
+export const previewDesign = async (payload) => {
+  const response = await apiClient.post("/api/lab/designs/preview", payload);
+  return response.data.data;
+};
+
+// 본인이 출품한 가상 디자인 삭제 (선정/판매 확정된 에디션은 삭제 불가)
+export const deleteDesign = async (designId) => {
+  const response = await apiClient.delete(`/api/lab/designs/${designId}`);
+  return response.data.data;
+};
+
+// 랩 에디션 매장별 재고 조회
+export const getEditionStocks = async (editionId) => {
+  const response = await apiClient.get(`/api/lab/editions/${editionId}/stocks`);
+  return response.data.data;
+};
