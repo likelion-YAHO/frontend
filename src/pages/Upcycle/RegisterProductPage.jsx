@@ -155,9 +155,23 @@ export default function RegisterProductPage() {
   const [toastMessage, setToastMessage] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+  // design-analysis가 실패해도(레이트리밋 등) 재시도할 때 createProduct를 또 부르지 않도록
+  // 이미 등록에 성공한 제품을 기억해둔다. 사진/카테고리가 바뀌면 무효화된다.
+  const [registeredProduct, setRegisteredProduct] = useState(null);
+
   const hasPhotos = photos.length > 0;
   const hasCategory = !!category;
   const guideActive = hasPhotos && hasCategory;
+
+  const handlePhotosChange = (updatedPhotos) => {
+    setPhotos(updatedPhotos);
+    setRegisteredProduct(null);
+  };
+
+  const handleCategoryChange = (value) => {
+    setCategory(value);
+    setRegisteredProduct(null);
+  };
 
   const handleAnalyze = async () => {
     if (photos.length === 0 || !category || isAnalyzing) return;
@@ -174,24 +188,31 @@ export default function RegisterProductPage() {
       return;
     }
 
-    const categoryCode = CATEGORY_LABEL_TO_CODE[category];
-    const imageFiles = photos.map((photo) => photo.file).filter(Boolean);
-
-    if (imageFiles.length === 0) {
-      setToastMessage("사진을 다시 첨부해주세요.");
-      return;
-    }
-
     setIsAnalyzing(true);
 
     try {
-      const product = await createProduct(categoryCode, imageFiles);
+      let product = registeredProduct;
+
+      if (!product) {
+        const categoryCode = CATEGORY_LABEL_TO_CODE[category];
+        const imageFiles = photos.map((photo) => photo.file).filter(Boolean);
+
+        if (imageFiles.length === 0) {
+          setToastMessage("사진을 다시 첨부해주세요.");
+          setIsAnalyzing(false);
+          return;
+        }
+
+        product = await createProduct(categoryCode, imageFiles);
+        setRegisteredProduct(product);
+      }
+
       const analysis = await getDesignAnalysis(product.productId, {
         userPrompt: trimmedText,
       });
 
       navigate("/upcycle/custom", {
-        state: { product, analysis, photos },
+        state: { product, analysis},
       });
     } catch (error) {
       console.error("제품 등록/AI 분석 실패:", error);
@@ -220,7 +241,7 @@ export default function RegisterProductPage() {
 
         <PhotoArea>
           <PhotoUploader
-            onPhotosChange={setPhotos}
+            onPhotosChange={handlePhotosChange}
             onLimitExceeded={() =>
               setToastMessage("최대 5장까지 등록할 수 있어요")
             }
@@ -234,7 +255,7 @@ export default function RegisterProductPage() {
             <Dropdown
               options={categoryOptions}
               value={category}
-              onChange={setCategory}
+              onChange={handleCategoryChange}
               placeholder="카테고리를 선택해주세요."
               width="100%"
               fontSize="14px"
