@@ -6,6 +6,8 @@ import CalendarModal from "../../components/calendarModal/CalendarModal";
 import ActionButton from "../../components/button/ActionButton";
 import OrderBarcode from "./OrderBarcode";
 
+import { updateReservation } from "../../api/reservation";
+
 import activeStepIcon from "../../assets/images/icons/activeStep_icon.svg";
 import inactiveStepIcon from "../../assets/images/icons/inactiveStep_icon.svg";
 
@@ -319,51 +321,155 @@ const BarcodeBox = styled.div`
   overflow: hidden;
 `;
 
-export default function OrderCard({ order, onCancel }) {
+export default function OrderCard({ order, onCancel, onRefresh }) {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
-  const [reservationDate, setReservationDate] = useState(order.reservationDate);
+  // =========================
+  // 서버 진행 단계
+  // =========================
+  const steps = [
+    {
+      id: 1,
+      status: "RECEIVED",
+      label: "접수 완료",
+      completedTime: order.receivedAt,
+    },
+    {
+      id: 2,
+      status: "ARRIVED_AT_HQ",
+      label: "본사 도착",
+      completedTime: order.hqArrivedAt,
+    },
+    {
+      id: 3,
+      status: "INSPECTING",
+      label: "제품 검수",
+      completedTime: order.inspectingAt,
+    },
+    {
+      id: 4,
+      status: "IN_PROGRESS",
+      label: "제작 진행",
+      completedTime: order.inProgressAt,
+    },
+    {
+      id: 5,
+      status: "COMPLETED",
+      label: "제작 완료",
+      completedTime: order.completedAt,
+    },
+    {
+      id: 6,
+      status: "SHIPPING",
+      label: "배송 중",
+      completedTime: order.shippingAt,
+    },
+    {
+      id: 7,
+      status: "ARRIVED_AT_STORE",
+      label: "매장 도착",
+      completedTime: order.storeArrivedAt,
+    },
+  ];
 
-  const [reservationTime, setReservationTime] = useState(order.reservationTime);
+  // =========================
+  // 날짜 표시 함수
+  // =========================
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "";
 
-  const [steps, setSteps] = useState(order.steps);
+    const date = new Date(dateString);
 
-  const currentStepIndex = steps.reduce((lastIndex, step, index) => {
-    return step.completed ? index : lastIndex;
-  }, -1);
+    return date.toLocaleString("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
 
-  const handleReservationChange = ({ date, time }) => {
-    setReservationDate(date);
-    setReservationTime(time);
+  // 예상 도착일은 시간까지 필요 없으면 날짜만 표시
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
 
-    // 첫 번째 step = 방문 예약
-    setSteps((prevSteps) =>
-      prevSteps.map((step, index) =>
-        index === 0
-          ? {
-              ...step,
-              completed: true,
-              completedTime: `${date} ${time}`,
-            }
-          : step,
-      ),
-    );
+    const date = new Date(dateString);
 
-    setIsCalendarOpen(false);
+    return date.toLocaleDateString("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  };
+
+  // =========================
+  // 현재 진행 단계
+  // =========================
+  const currentStepIndex = steps.findIndex(
+    (step) => step.status === order.currentStatus,
+  );
+
+  // =========================
+  // 현재 예약 날짜 / 시간
+  // CalendarModal 형식으로 변환
+  // =========================
+  const visitDateObject = order.visitDate ? new Date(order.visitDate) : null;
+
+  const initialDate = visitDateObject
+    ? `${visitDateObject.getFullYear()}.${
+        visitDateObject.getMonth() + 1
+      }.${visitDateObject.getDate()}`
+    : "";
+
+  const initialTime = visitDateObject
+    ? `${String(visitDateObject.getHours()).padStart(2, "0")}:${String(
+        visitDateObject.getMinutes(),
+      ).padStart(2, "0")}`
+    : "";
+
+  // =========================
+  // 예약 변경
+  // =========================
+  const handleReservationChange = async ({ date, time }) => {
+    try {
+      const [year, month, day] = date.split(".");
+
+      const formattedDate = [
+        year,
+        month.padStart(2, "0"),
+        day.padStart(2, "0"),
+      ].join("-");
+
+      const visitDate = `${formattedDate}T${time}:00`;
+
+      await updateReservation(order.reservationId, {
+        reformId: order.reformId,
+        storeId: order.storeId,
+        visitDate,
+      });
+
+      await onRefresh();
+
+      setIsCalendarOpen(false);
+    } catch (error) {
+      console.error("예약 변경 실패:", error);
+    }
   };
 
   return (
     <>
       <Card>
         <TopBox>
+          {/* 주문번호 */}
           <OrderNumberRow>
             <OrderNumberLabel>주문번호</OrderNumberLabel>
 
             <OrderNumber>{order.orderNumber}</OrderNumber>
           </OrderNumberRow>
 
+          {/* 상품 정보 */}
           <ProductBox>
-            <ProductImage src={order.productImage} alt={order.productName} />
+            <ProductImage src={order.productImageUrl} alt={order.productName} />
 
             <ProductInfo>
               <InfoRow>
@@ -375,7 +481,7 @@ export default function OrderCard({ order, onCancel }) {
               <InfoRow>
                 <InfoLabel>매장</InfoLabel>
 
-                <InfoValue>{order.store}</InfoValue>
+                <InfoValue>{order.storeName}</InfoValue>
               </InfoRow>
 
               <ActionButtonArea>
@@ -394,6 +500,7 @@ export default function OrderCard({ order, onCancel }) {
             </ProductInfo>
           </ProductBox>
 
+          {/* 진행 상황 */}
           <ProgressBox>
             <StateArea>
               <ProgressLine />
@@ -415,38 +522,43 @@ export default function OrderCard({ order, onCancel }) {
               })}
             </StateArea>
 
+            {/* 단계별 도달 시간 */}
             <DateArea>
               {steps.map((step, index) => {
                 const isCurrent = index === currentStepIndex;
 
                 return (
                   <DateItem key={step.id} $active={isCurrent}>
-                    {step.completed ? step.completedTime : ""}
+                    {formatDateTime(step.completedTime)}
                   </DateItem>
                 );
               })}
 
-              <ExpectedDate>
-                예상 도착일 {order.expectedArrivalDate}
-              </ExpectedDate>
+              {order.estimatedStoreArrivalDate && (
+                <ExpectedDate>
+                  예상 도착일 {formatDate(order.estimatedStoreArrivalDate)}
+                </ExpectedDate>
+              )}
             </DateArea>
           </ProgressBox>
         </TopBox>
 
+        {/* 바코드 */}
         <BarcodeOuterBox>
           <BarcodeBox>
-            <OrderBarcode value={order.orderNumber} />
+            <OrderBarcode value={order.barcode} />
           </BarcodeBox>
         </BarcodeOuterBox>
       </Card>
 
+      {/* 예약 변경 캘린더 */}
       <CalendarModal
         isOpen={isCalendarOpen}
         onClose={() => setIsCalendarOpen(false)}
         onSelectComplete={handleReservationChange}
         mode="edit"
-        initialDate={reservationDate}
-        initialTime={reservationTime}
+        initialDate={initialDate}
+        initialTime={initialTime}
       />
     </>
   );

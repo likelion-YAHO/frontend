@@ -92,7 +92,7 @@ const ProductBox = styled.div`
 `;
 
 /* 이미지 영역 */
-const ProductImageBox = styled.div`
+const ProductImage = styled.img`
   width: 86px;
   height: 110px;
 
@@ -167,10 +167,19 @@ const ButtonArea = styled.div`
   margin-top: 16px;
 `;
 
-export default function OrderHistoryCard({ order, onRestore }) {
+export default function HistoryCard({ order, onRestore }) {
   const navigate = useNavigate();
 
-  const isCancelled = order.status === "cancelled";
+  const isCancelled = order.currentStatus === "CANCELLED";
+
+  // 실제 수령 날짜 표시
+  const formattedPickedUpAt = order.pickedUpAt
+    ? new Date(order.pickedUpAt).toLocaleDateString("ko-KR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })
+    : "";
 
   return (
     <Card>
@@ -188,23 +197,28 @@ export default function OrderHistoryCard({ order, onRestore }) {
       </OrderHeaderRow>
 
       <ProductBox>
-        <ProductImageBox />
+        <ProductImage src={order.productImageUrl} alt={order.productName} />
 
         <ProductInfo>
           <InfoRow>
             <InfoLabel>예약 제품</InfoLabel>
+
             <InfoValue>{order.productName}</InfoValue>
           </InfoRow>
 
           <InfoRow>
             <InfoLabel>매장</InfoLabel>
-            <InfoValue>{order.store}</InfoValue>
+
+            <InfoValue>{order.storeName}</InfoValue>
           </InfoRow>
 
-          <InfoRow $hidden={isCancelled}>
-            <InfoLabel>수령 날짜</InfoLabel>
-            <InfoValue>{order.receivedDate}</InfoValue>
-          </InfoRow>
+          {!isCancelled && (
+            <InfoRow>
+              <InfoLabel>수령 날짜</InfoLabel>
+
+              <InfoValue>{formattedPickedUpAt}</InfoValue>
+            </InfoRow>
+          )}
 
           <ButtonArea>
             {isCancelled ? (
@@ -218,7 +232,8 @@ export default function OrderHistoryCard({ order, onRestore }) {
                 onClick={() =>
                   navigate("/inquiry", {
                     state: {
-                      orderId: order.id,
+                      reservationId: order.reservationId,
+
                       orderNumber: order.orderNumber,
                     },
                   })
