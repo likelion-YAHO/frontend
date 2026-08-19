@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import LabEditionProductHero from "./LabEditionProductHero";
 import LabEditionProductInfo from "./LabEditionProductInfo";
+import StoreSearchModal from "../../components/storeSearchModal/StoreSearchModal";
 import LabEditionProductDetails from "./LabEditionProductDetails";
 import LabEditionRecommend from "./LabEditionRecommend";
 import BrandIntro from "../MainPage/BrandIntro";
@@ -42,6 +43,7 @@ export default function LabEditionDetailPage() {
   const [editions, setEditions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const [isStoreModalOpen, setIsStoreModalOpen] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -72,12 +74,14 @@ export default function LabEditionDetailPage() {
   }
 
   if (loadError) {
-    return <StatusText>상품 정보를 불러오지 못했습니다. 다시 시도해주세요.</StatusText>;
+    return (
+      <StatusText>
+        상품 정보를 불러오지 못했습니다. 다시 시도해주세요.
+      </StatusText>
+    );
   }
 
-  const rawProduct = editions.find(
-    (item) => item.id === Number(productId),
-  );
+  const rawProduct = editions.find((item) => item.id === Number(productId));
 
   if (!rawProduct) {
     return <div>상품을 찾을 수 없습니다.</div>;
@@ -92,7 +96,22 @@ export default function LabEditionDetailPage() {
   return (
     <>
       <LabEditionProductHero product={product} />
-      <LabEditionProductInfo product={product} />
+      <LabEditionProductInfo
+        product={product}
+        onOpenStockModal={() => {
+          console.log("매장 재고 모달 열기");
+          setIsStoreModalOpen(true);
+        }}
+      />
+      <StoreSearchModal
+        isOpen={isStoreModalOpen}
+        onClose={() => setIsStoreModalOpen(false)}
+        editionId={product.id}
+        onSelectComplete={(store) => {
+          console.log("선택 매장:", store);
+          setIsStoreModalOpen(false);
+        }}
+      />
       <LabEditionProductDetails />
       <LabEditionRecommend products={recommendedProducts} />
       <BrandIntro />

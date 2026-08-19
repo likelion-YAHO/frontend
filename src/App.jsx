@@ -13,7 +13,6 @@ import PageTransition from "./components/pageTransition/PageTransition";
 import InquiryPage from "./pages/Inquiry/InquiryPage";
 import McmLabPage from "./pages/McmLab/McmLabPage";
 import LabEditionDetailPage from "./pages/Labedition/LabEditionDetailPage";
-import ShoppingBagPage from "./pages/Labedition/ShoppingBagPage";
 import ModelSelectPage from "./pages/McmLab/ModelSelectPage";
 import DesignGuidePage from "./pages/McmLab/DesignGuidePage";
 import McmLabCustomProductPage from "./pages/McmLab/CustomProductPage";
@@ -153,14 +152,6 @@ function AnimatedRoutes() {
             element={
               <PageTransition>
                 <LabEditionDetailPage />
-              </PageTransition>
-            }
-          />
-          <Route
-            path="/shopping-bag"
-            element={
-              <PageTransition>
-                <ShoppingBagPage />
               </PageTransition>
             }
           />
