@@ -7,15 +7,6 @@ const InfoArea = styled.div`
   box-sizing: border-box;
 `;
 
-const Divider = styled.div`
-  width: 100px;
-  height: 2px;
-
-  margin-bottom: 9px;
-
-  background: #141414;
-`;
-
 const ProductName = styled.h1`
   margin: 0;
 
@@ -96,8 +87,6 @@ export default function LabEditionProductInfo({ product, onOpenStockModal }) {
 
   return (
     <>
-      <Divider />
-
       <InfoArea>
         <ProductName>{product.name}</ProductName>
 

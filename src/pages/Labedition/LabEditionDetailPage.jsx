@@ -27,7 +27,13 @@ const StatusText = styled.p`
 // LabEditionCard/LabEditionProductInfo가 기대하는 필드 형태로 매핑한다.
 const mapEdition = (edition) => ({
   id: edition.id,
+
+  // 대표 이미지
   image: resolveImageUrl(edition.imageUrl),
+
+  // 상세 페이지 4방향 이미지
+  images: (edition.imageUrls ?? []).map(resolveImageUrl),
+
   name: edition.designName,
   edition: edition.concept,
   price: edition.price,
