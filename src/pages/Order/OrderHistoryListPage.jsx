@@ -37,25 +37,42 @@ const EmptyText = styled.p`
 `;
 
 export default function OrderHistoryListPage({ orders, onRestore }) {
+  // =========================
+  // 주문 내역 필터링
+  // =========================
+
   const historyOrders = orders
-    .filter(
-      (order) => order.status === "completed" || order.status === "cancelled",
-    )
+    .filter((order) => {
+      const isCancelled = order.currentStatus === "CANCELLED";
+
+      const isPickedUp = Boolean(order.pickedUpAt);
+
+      return isCancelled || isPickedUp;
+    })
     .sort((a, b) => {
       /*
-       * 취소 주문은 receivedDate가 없을 수 있으므로 일단 id 기준 최신순 fallback
-       *
-       * 완료 주문 날짜 정렬은 API 연동 시 다시 맞출 예정
+       * 실제 수령 완료 주문은 pickedUpAt 기준 최신순
        */
-      if (!a.receivedDate || !b.receivedDate) {
-        return b.id - a.id;
+      if (a.pickedUpAt && b.pickedUpAt) {
+        return new Date(b.pickedUpAt) - new Date(a.pickedUpAt);
       }
 
-      return (
-        new Date(b.receivedDate.replaceAll(".", "-")) -
-        new Date(a.receivedDate.replaceAll(".", "-"))
-      );
+      /*
+       * 한쪽만 수령 완료 주문이면
+       * 수령 완료 주문을 먼저 표시
+       */
+      if (a.pickedUpAt) return -1;
+      if (b.pickedUpAt) return 1;
+
+      /*
+       * 둘 다 취소 주문이면 reservationId 최신순
+       */
+      return b.reservationId - a.reservationId;
     });
+
+  // =========================
+  // 주문 내역 없음
+  // =======
 
   if (historyOrders.length === 0) {
     return (
@@ -69,13 +86,17 @@ export default function OrderHistoryListPage({ orders, onRestore }) {
     );
   }
 
+  // =========================
+  // 주문 내역 목록
+  // =========================
+
   return (
     <Content>
       {historyOrders.map((order) => (
         <HistoryCard
-          key={order.id}
+          key={order.reservationId}
           order={order}
-          onRestore={() => onRestore(order.id)}
+          onRestore={() => onRestore(order.reservationId)}
         />
       ))}
     </Content>
