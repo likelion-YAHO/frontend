@@ -2,10 +2,22 @@ import styled from "styled-components";
 import locationPinGrayIcon from "../../assets/images/icons/location_pin_gray_icon.svg";
 import phoneIcon from "../../assets/images/icons/phone_icon.svg";
 
-const StoreListItem = ({ store, $selected, onClick }) => {
+const StoreListItem = ({ store, $selected, onClick, stock }) => {
+  const soldOut = stock === 0;
+
   return (
-    <Item $selected={$selected} onClick={onClick}>
+    <Item
+      $selected={$selected}
+      onClick={soldOut ? undefined : onClick}
+      $soldOut={soldOut}
+    >
       <StoreName>{store.name}</StoreName>
+
+      {stock !== undefined && (
+        <StockText $soldOut={soldOut}>
+          {soldOut ? "0개 남음" : `${stock}개 남음`}
+        </StockText>
+      )}
 
       <InfoRow>
         <Icon src={locationPinGrayIcon} alt="" />
@@ -31,7 +43,9 @@ const Item = styled.div`
 
   background: ${({ $selected }) => ($selected ? "#D0D0D0" : "#F6F6F6")};
 
-  cursor: pointer;
+  opacity: ${({ $soldOut }) => ($soldOut ? 0.7 : 1)};
+
+  cursor: ${({ $soldOut }) => ($soldOut ? "default" : "pointer")};
 `;
 
 const StoreName = styled.p`
@@ -42,6 +56,16 @@ const StoreName = styled.p`
   line-height: 24px;
 
   margin: 0;
+`;
+
+const StockText = styled.p`
+  margin: 0;
+
+  color: ${({ $soldOut }) => ($soldOut ? "#ee443f" : "#141414")};
+
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
 `;
 
 const InfoRow = styled.div`
