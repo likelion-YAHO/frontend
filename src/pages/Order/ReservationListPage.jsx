@@ -36,10 +36,13 @@ const EmptyText = styled.p`
   text-align: center;
 `;
 
-export default function ReservationListPage({ orders, onCancel }) {
-  const reservationOrders = orders.filter(
-    (order) => order.status === "inProgress",
-  );
+export default function ReservationListPage({ orders, onCancel, onRefresh }) {
+  const reservationOrders = orders.filter((order) => {
+    const isCancelled = order.currentStatus === "CANCELLED";
+    const isPickedUp = Boolean(order.pickedUpAt);
+
+    return !isCancelled && !isPickedUp;
+  });
 
   if (reservationOrders.length === 0) {
     return (
@@ -57,9 +60,10 @@ export default function ReservationListPage({ orders, onCancel }) {
     <Content>
       {reservationOrders.map((order) => (
         <OrderCard
-          key={order.id}
+          key={order.reservationId}
           order={order}
-          onCancel={() => onCancel(order.id)}
+          onCancel={() => onCancel(order.reservationId)}
+          onRefresh={onRefresh}
         />
       ))}
     </Content>
