@@ -217,7 +217,7 @@ export default function SideMenu({ user, onClose, onNavigate, onLogoutClick }) {
             <ArrowIcon src={rightArrow} alt="" />
           </MenuItem>
 
-          <MenuItem type="button">
+          <MenuItem type="button" onClick={() => handleNavigate("/manual")}>
             MCM Lab & 업사이클 매뉴얼
             <ArrowIcon src={rightArrow} alt="" />
           </MenuItem>

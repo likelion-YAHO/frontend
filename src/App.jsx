@@ -18,6 +18,7 @@ import ModelSelectPage from "./pages/McmLab/ModelSelectPage";
 import DesignGuidePage from "./pages/McmLab/DesignGuidePage";
 import McmLabCustomProductPage from "./pages/McmLab/CustomProductPage";
 import IntroduceUpc from "./pages/Introduce/IntroduceUpcyclePage";
+import ManualPage from "./pages/Manual/ManualPage";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -32,7 +33,8 @@ function AnimatedRoutes() {
     "/orders",
     "/inquiry",
     "/mcmlab",
-    "introduceupc",
+    "/introduceupc",
+    "/manual",
   ];
   const routeKey = layoutSharedPaths.includes(location.pathname)
     ? "layout"
@@ -167,6 +169,14 @@ function AnimatedRoutes() {
             element={
               <PageTransition>
                 <IntroduceUpc />
+              </PageTransition>
+            }
+          />
+          <Route
+            path="/manual"
+            element={
+              <PageTransition>
+                <ManualPage />
               </PageTransition>
             }
           />
