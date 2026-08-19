@@ -13,7 +13,6 @@ import Modal from "../components/modal/Modal";
 import IntentButton from "../components/button/IntentButton";
 
 import logo from "../assets/images/icons/Mcm_icon.svg";
-import shoppingBagIcon from "../assets/images/icons/shoppingbag_icon.svg";
 
 import { logout } from "../api/auth";
 
@@ -201,15 +200,7 @@ export default function RootLayout() {
         ) : isMcmLabPage ? (
           <McmLabHeader activeTab={mcmLabTab} onTabChange={setMcmLabTab} />
         ) : isLabEditionDetailPage ? (
-          <SubHeader
-            title="Lab Edition"
-            onBack={() =>
-              navigate("/mcmlab", { state: { initialTab: "edition" } })
-            }
-            rightIcon={shoppingBagIcon}
-            rightAlt="쇼핑백"
-            onRightClick={() => navigate("/shopping-bag")}
-          />
+          <SubHeader title="Lab Edition" onBack={() => navigate(-1)} />
         ) : (
           <Header
             $hidden={navHidden}

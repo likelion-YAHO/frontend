@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import TransparentButton from "../../components/button/TransparentButton";
 import LabEditionCard from "./LabEditionCard";
 import labEditionBanner from "../../assets/images/labedition/edition_banner.png";
 import { getEditions } from "../../api/lab";
@@ -70,12 +68,6 @@ const BannerDescription = styled.p`
   line-height: 18px;
 `;
 
-const BannerButton = styled(TransparentButton)`
-  position: absolute;
-  right: 24px;
-  bottom: 20px;
-`;
-
 /* =========================
    상품 목록
 ========================= */
@@ -98,8 +90,6 @@ const StatusText = styled.p`
 `;
 
 export default function LabEditionPage() {
-  const navigate = useNavigate();
-
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
@@ -157,12 +147,6 @@ export default function LabEditionPage() {
             새로운 업사이클링 에디션을 지금 구매하세요!
           </BannerDescription>
         </BannerTextOverlay>
-        <BannerButton
-          type="button"
-          label="쇼핑백"
-          iconAlt="이동"
-          onClick={() => navigate("/shopping-bag")}
-        />
       </BannerWrap>
 
       {isLoading && <StatusText>목록을 불러오는 중...</StatusText>}
