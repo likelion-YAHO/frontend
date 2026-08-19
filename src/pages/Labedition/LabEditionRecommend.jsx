@@ -127,7 +127,11 @@ export default function LabEditionRecommend({ products }) {
           {recommendPages.map((page, pageIndex) => (
             <Slide key={pageIndex}>
               {page.map((item) => (
-                <LabEditionCard key={item.id} product={item} />
+                <LabEditionCard
+                  key={item.id}
+                  product={item}
+                  navState={{ fromDetail: true }}
+                />
               ))}
             </Slide>
           ))}

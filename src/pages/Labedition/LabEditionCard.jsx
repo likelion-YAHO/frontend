@@ -128,13 +128,18 @@ const ColorChip = styled.div`
   outline-offset: -1px;
 `;
 
-export default function LabEditionCard({ product }) {
+export default function LabEditionCard({ product, navState }) {
   const navigate = useNavigate();
 
   return (
     <Card
       type="button"
-      onClick={() => navigate(`/mcmlab/edition/${product.id}`)}
+      onClick={() =>
+        navigate(
+          `/mcmlab/edition/${product.id}`,
+          navState ? { state: navState } : undefined,
+        )
+      }
     >
       <ImageArea>
         <EditionLabel>Lab Edition</EditionLabel>

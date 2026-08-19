@@ -200,7 +200,14 @@ export default function RootLayout() {
         ) : isMcmLabPage ? (
           <McmLabHeader activeTab={mcmLabTab} onTabChange={setMcmLabTab} />
         ) : isLabEditionDetailPage ? (
-          <SubHeader title="Lab Edition" onBack={() => navigate(-1)} />
+          <SubHeader
+            title="Lab Edition"
+            onBack={() =>
+              location.state?.fromDetail
+                ? navigate(-1)
+                : navigate("/mcmlab", { state: { initialTab: "edition" } })
+            }
+          />
         ) : (
           <Header
             $hidden={navHidden}
