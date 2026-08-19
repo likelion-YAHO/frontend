@@ -91,7 +91,7 @@ const ButtonArea = styled.div`
   box-sizing: border-box;
 `;
 
-export default function LabEditionProductInfo({ product }) {
+export default function LabEditionProductInfo({ product, onOpenStockModal }) {
   const soldOut = product.stock === 0;
 
   return (
@@ -128,8 +128,9 @@ export default function LabEditionProductInfo({ product }) {
           width="100%"
           height="44px"
           disabled={soldOut}
+          onClick={onOpenStockModal}
         >
-          {soldOut ? "품절" : "쇼핑백에 추가"}
+          {soldOut ? "품절" : "매장 재고 확인"}
         </IntentButton>
       </ButtonArea>
     </>
