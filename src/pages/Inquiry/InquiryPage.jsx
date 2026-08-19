@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 
 import Accordion from "../../components/accordion/Accordion";
 import IntentButton from "../../components/button/IntentButton";
+
+import { createInquiry } from "../../api/inquiry";
 
 const Page = styled.div`
   width: 100%;
@@ -68,7 +71,37 @@ const AnswerText = styled.p`
 `;
 
 export default function InquiryPage() {
+  const location = useLocation();
+
   const [inquiryText, setInquiryText] = useState("");
+
+  const orderNumber = location.state?.orderNumber;
+
+  const handleSubmitInquiry = async (closeAccordion) => {
+    const content = inquiryText.trim();
+
+    if (!content) return;
+
+    if (!orderNumber) {
+      console.error("주문번호가 없습니다.");
+      return;
+    }
+
+    try {
+      await createInquiry(orderNumber, {
+        content,
+      });
+
+      console.log("문의 등록 성공");
+
+      setInquiryText("");
+
+      closeAccordion();
+    } catch (error) {
+      console.error("문의 등록 실패:", error);
+      console.error("서버 응답:", error.response?.data);
+    }
+  };
 
   return (
     <Page>
@@ -77,9 +110,6 @@ export default function InquiryPage() {
           {(closeAccordion) => (
             <InquiryForm>
               <TextArea
-                width="100%"
-                height="100px"
-                fontSize="14px"
                 placeholder="문의하실 내용을 자세히 남겨주세요."
                 value={inquiryText}
                 onChange={(e) => setInquiryText(e.target.value)}
@@ -91,13 +121,7 @@ export default function InquiryPage() {
                   width="100%"
                   height="44px"
                   disabled={!inquiryText.trim()}
-                  onClick={() => {
-                    if (!inquiryText.trim()) return;
-
-                    // 나중에 API 연결 시 문의 등록 API 호출 위치
-                    setInquiryText("");
-                    closeAccordion();
-                  }}
+                  onClick={() => handleSubmitInquiry(closeAccordion)}
                 >
                   작성 완료
                 </IntentButton>

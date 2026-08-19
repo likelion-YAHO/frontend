@@ -232,8 +232,6 @@ export default function HistoryCard({ order, onRestore }) {
                 onClick={() =>
                   navigate("/inquiry", {
                     state: {
-                      reservationId: order.reservationId,
-
                       orderNumber: order.orderNumber,
                     },
                   })
