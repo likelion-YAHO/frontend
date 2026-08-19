@@ -156,6 +156,7 @@ export default function PhotoUploader({ onPhotosChange, onLimitExceeded }) {
     const newPhotos = filesToAdd.map((file) => ({
       id: `${file.name}-${file.lastModified}-${Math.random()}`,
       url: URL.createObjectURL(file),
+      file,
     }));
 
     const updated = [...photos, ...newPhotos];
