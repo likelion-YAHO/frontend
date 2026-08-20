@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import dummyTimeSlots from "../../data/dummyTimeSlots";
 import LimitToast from "../toast/LimitToast";
@@ -110,6 +110,41 @@ const CalendarModalContent = ({
   initialTime,
 }) => {
   const sliderRef = useRef(null);
+
+  // 모달을 처음 열었을 때 보여줄 월
+  useEffect(() => {
+    const slider = sliderRef.current;
+
+    if (!slider) return;
+
+    let targetDate = today;
+
+    // 예약 변동이면 기존 예약 날짜가 있는 달부터 보여준다.
+    if (mode === "edit") {
+      const parsedDate = parseInitialDate(initialDate);
+
+      if (parsedDate) {
+        targetDate = new Date(
+          parsedDate.year,
+          parsedDate.month,
+          parsedDate.day,
+        );
+      }
+    }
+
+    // months 배열에서 보여줄 월의 위치 찾기
+    const targetIndex = months.findIndex(
+      (month) =>
+        month.year === targetDate.getFullYear() &&
+        month.month === targetDate.getMonth(),
+    );
+
+    if (targetIndex === -1) return;
+
+    // 각 MonthGrid가 Slider 너비의 100%이므로
+    // 해당 월의 index만큼 이동
+    slider.scrollLeft = slider.clientWidth * targetIndex;
+  }, [mode, initialDate]);
 
   /*
    * 신규 예약(create)
