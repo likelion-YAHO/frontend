@@ -5,44 +5,89 @@ import locationPinBlackIcon from "../../assets/images/icons/location_pin_black_i
 
 import StoreListItem from "../storeListItem/StoreListItem";
 
+import { getStores } from "../../api/store";
 import { getEditionStocks } from "../../api/lab";
 
-const StoreSearchModal = ({ isOpen, onClose, onSelectComplete, editionId }) => {
-  const [selectedStoreName, setSelectedStoreName] = useState(null);
+const StoreSearchModal = ({
+  isOpen,
+  onClose,
+  onSelectComplete,
+  mode = "reservation",
+  editionId,
+  latitude,
+  longitude,
+}) => {
+  const [selectedStoreKey, setSelectedStoreKey] = useState(null);
   const [stores, setStores] = useState([]);
 
   useEffect(() => {
-    if (!isOpen || !editionId) return;
+    if (!isOpen) return;
 
     let ignore = false;
 
-    getEditionStocks(editionId)
-      .then((data) => {
-        if (ignore) return;
+    const fetchStores = async () => {
+      try {
+        let data = [];
 
-        console.log("Lab Edition 매장 재고:", data);
+        console.log("매장 모달 mode:", mode);
+        console.log("editionId:", editionId);
+        console.log("현재 좌표:", latitude, longitude);
 
-        setStores(data ?? []);
-      })
-      .catch((error) => {
-        console.error("Lab Edition 매장 재고 조회 실패:", error);
+        // Lab Edition
+        if (mode === "edition") {
+          if (!editionId) {
+            console.log("editionId 없음");
+            return;
+          }
+
+          data = await getEditionStocks(editionId);
+        }
+
+        // 일반 예약
+        if (mode === "reservation") {
+          if (latitude == null || longitude == null) {
+            console.log("현재 위치 좌표 없음");
+            return;
+          }
+
+          data = await getStores(latitude, longitude);
+        }
+
+        console.log("API에서 받은 매장 목록:", data);
+
+        if (!ignore) {
+          setStores(data ?? []);
+        }
+      } catch (error) {
+        console.error("매장 목록 조회 실패:", error);
 
         if (!ignore) {
           setStores([]);
         }
-      });
+      }
+    };
+
+    fetchStores();
 
     return () => {
       ignore = true;
     };
-  }, [isOpen, editionId]);
+  }, [isOpen, mode, editionId, latitude, longitude]);
 
   if (!isOpen) return null;
 
+  // =========================
+  // 선택 완료
+  // =========================
   const handleComplete = () => {
-    const selectedStore = stores.find(
-      (store) => store.storeName === selectedStoreName,
-    );
+    const selectedStore = stores.find((store) => {
+      const storeKey =
+        mode === "edition"
+          ? store.storeName
+          : (store.id ?? store.storeId ?? store.name);
+
+      return storeKey === selectedStoreKey;
+    });
 
     if (!selectedStore) return;
 
@@ -54,7 +99,7 @@ const StoreSearchModal = ({ isOpen, onClose, onSelectComplete, editionId }) => {
   return (
     <Overlay onClick={onClose}>
       <ModalCard onClick={(e) => e.stopPropagation()}>
-        <Title>매장 재고 확인</Title>
+        <Title>{mode === "edition" ? "매장 재고 확인" : "가까운 매장"}</Title>
 
         <LocationBar>
           <LocationIcon src={locationPinBlackIcon} alt="" />
@@ -64,24 +109,60 @@ const StoreSearchModal = ({ isOpen, onClose, onSelectComplete, editionId }) => {
 
         <StoreListBox>
           <StoreList>
-            {stores.map((store) => {
-              const soldOut = store.isSoldOut || store.stockCount === 0;
+            {stores.map((store, index) => {
+              /*
+               * Lab Edition 응답
+               *
+               * {
+               *   storeName,
+               *   address,
+               *   phoneNumber,
+               *   stockCount,
+               *   isSoldOut
+               * }
+               */
+              if (mode === "edition") {
+                const storeKey = store.storeName;
+
+                const soldOut = store.isSoldOut || store.stockCount === 0;
+
+                return (
+                  <StoreListItem
+                    key={`${store.storeName}-${index}`}
+                    store={{
+                      name: store.storeName,
+                      address: store.address,
+                      phone: store.phoneNumber,
+                    }}
+                    stock={store.stockCount}
+                    $selected={selectedStoreKey === storeKey}
+                    onClick={() => {
+                      if (!soldOut) {
+                        setSelectedStoreKey(storeKey);
+                      }
+                    }}
+                  />
+                );
+              }
+
+              /*
+               * 일반 예약 매장
+               *
+               * 실제 store API 응답 필드에 맞게
+               * id/name/address/phone 부분만 조정하면 됨
+               */
+              const storeKey = store.id ?? store.storeId ?? store.name;
 
               return (
                 <StoreListItem
-                  key={store.storeName}
+                  key={storeKey ?? index}
                   store={{
-                    name: store.storeName,
-                    address: store.address,
-                    phone: store.phoneNumber,
+                    name: store.name ?? store.storeName,
+                    address: store.address ?? store.storeAddress ?? "",
+                    phone: store.phone ?? store.phoneNumber ?? "",
                   }}
-                  stock={store.stockCount}
-                  $selected={store.storeName === selectedStoreName}
-                  onClick={() => {
-                    if (!soldOut) {
-                      setSelectedStoreName(store.storeName);
-                    }
-                  }}
+                  $selected={selectedStoreKey === storeKey}
+                  onClick={() => setSelectedStoreKey(storeKey)}
                 />
               );
             })}
@@ -89,7 +170,7 @@ const StoreSearchModal = ({ isOpen, onClose, onSelectComplete, editionId }) => {
         </StoreListBox>
 
         <CompleteButton
-          disabled={selectedStoreName === null}
+          disabled={selectedStoreKey === null}
           onClick={handleComplete}
         >
           선택 완료
