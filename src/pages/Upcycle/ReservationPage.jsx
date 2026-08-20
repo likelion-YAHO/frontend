@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
@@ -85,6 +85,7 @@ export default function ReservationPage() {
   const summary = location.state?.summary ?? dummyReservationSummary;
 
   const [store, setStore] = useState("");
+  const [userLocation, setUserLocation] = useState(null);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [isStoreModalOpen, setIsStoreModalOpen] = useState(false);
@@ -95,24 +96,50 @@ export default function ReservationPage() {
   const [isToastVisible, setIsToastVisible] = useState(false);
 
   const handleReserve = () => {
-  if (!store) {
-    setToastMessage("매장을 선택해주세요");
-    setIsToastVisible(true);
-    return;
-  }
-  if (!date) {
-    setToastMessage("날짜를 선택해주세요");
-    setIsToastVisible(true);
-    return;
-  }
-  if (!time) {
-    setToastMessage("예약 시간을 선택해주세요");
-    setIsToastVisible(true);
-    return;
-  }
-  // TODO: 예약 확정 API 연동 (추후 이슈)
-  setIsCompleteModalOpen(true);
+    if (!store) {
+      setToastMessage("매장을 선택해주세요");
+      setIsToastVisible(true);
+      return;
+    }
+    if (!date) {
+      setToastMessage("날짜를 선택해주세요");
+      setIsToastVisible(true);
+      return;
+    }
+    if (!time) {
+      setToastMessage("예약 시간을 선택해주세요");
+      setIsToastVisible(true);
+      return;
+    }
+    // TODO: 예약 확정 API 연동 (추후 이슈)
+    setIsCompleteModalOpen(true);
   };
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+
+        console.log("현재 위치:", latitude, longitude);
+
+        setUserLocation({
+          latitude,
+          longitude,
+        });
+      },
+      (error) => {
+        console.error("위치 정보 조회 실패:", error);
+      },
+    );
+  }, []);
+
+  const handleConfirmReservation = useCallback(() => {
+    navigate("/orders");
+  }, [navigate]);
+
+  const handleAutoRedirect = useCallback(() => {
+    navigate("/main");
+  }, [navigate]);
 
   return (
     <Screen>
@@ -176,10 +203,14 @@ export default function ReservationPage() {
         <StoreSearchModal
           isOpen={isStoreModalOpen}
           onClose={() => setIsStoreModalOpen(false)}
+          mode="reservation"
+          latitude={userLocation?.latitude}
+          longitude={userLocation?.longitude}
           onSelectComplete={(selectedStore) => {
             if (selectedStore) {
-              setStore(selectedStore.name);
+              setStore(selectedStore.name ?? selectedStore.storeName);
             }
+
             setIsStoreModalOpen(false);
           }}
         />
@@ -195,8 +226,8 @@ export default function ReservationPage() {
 
         <ReservationCompleteModal
           isOpen={isCompleteModalOpen}
-          onConfirm={() => navigate("/orders")}
-          onAutoRedirect={() => navigate("/main")}
+          onConfirm={handleConfirmReservation}
+          onAutoRedirect={handleAutoRedirect}
         />
       </Page>
 
