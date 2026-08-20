@@ -431,6 +431,12 @@ export default function OrderCard({ order, onCancel, onRefresh }) {
   // 예약 변경
   // =========================
   const handleReservationChange = async ({ date, time }) => {
+    console.log("handleReservationChange 진입:", {
+      date,
+      time,
+      order,
+    });
+
     try {
       const [year, month, day] = date.split(".");
 
@@ -440,19 +446,28 @@ export default function OrderCard({ order, onCancel, onRefresh }) {
         day.padStart(2, "0"),
       ].join("-");
 
-      const visitDate = `${formattedDate}T${time}:00`;
+      const formattedTime = time.replace(/^(오전|오후)\s*/, "");
 
-      await updateReservation(order.reservationId, {
+      const visitDate = `${formattedDate}T${formattedTime}:00`;
+
+      const payload = {
         reformId: order.reformId,
         storeId: order.storeId,
         visitDate,
-      });
+      };
+
+      console.log("예약 변경 payload:", payload);
+
+      await updateReservation(order.reservationId, payload);
+
+      console.log("예약 변경 성공");
 
       await onRefresh();
 
       setIsCalendarOpen(false);
     } catch (error) {
       console.error("예약 변경 실패:", error);
+      console.error("예약 변경 실패 응답:", error.response?.data);
     }
   };
 

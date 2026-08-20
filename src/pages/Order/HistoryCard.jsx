@@ -170,7 +170,8 @@ const ButtonArea = styled.div`
 export default function HistoryCard({ order, onRestore }) {
   const navigate = useNavigate();
 
-  const isCancelled = order.currentStatus === "CANCELLED";
+  const isCancelled =
+    order.currentStatus === "CANCELLED" || order.currentStatus === "취소";
 
   // 실제 수령 날짜 표시
   const formattedPickedUpAt = order.pickedUpAt
