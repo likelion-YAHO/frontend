@@ -43,30 +43,21 @@ export default function OrderHistoryListPage({ orders, onRestore }) {
 
   const historyOrders = orders
     .filter((order) => {
-      const isCancelled = order.currentStatus === "CANCELLED";
+      const isCancelled =
+        order.currentStatus === "CANCELLED" || order.currentStatus === "취소";
 
       const isPickedUp = Boolean(order.pickedUpAt);
 
       return isCancelled || isPickedUp;
     })
     .sort((a, b) => {
-      /*
-       * 실제 수령 완료 주문은 pickedUpAt 기준 최신순
-       */
       if (a.pickedUpAt && b.pickedUpAt) {
         return new Date(b.pickedUpAt) - new Date(a.pickedUpAt);
       }
 
-      /*
-       * 한쪽만 수령 완료 주문이면
-       * 수령 완료 주문을 먼저 표시
-       */
       if (a.pickedUpAt) return -1;
       if (b.pickedUpAt) return 1;
 
-      /*
-       * 둘 다 취소 주문이면 reservationId 최신순
-       */
       return b.reservationId - a.reservationId;
     });
 

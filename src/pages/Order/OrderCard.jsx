@@ -267,23 +267,6 @@ const DateItem = styled.div`
   }
 `;
 
-const ExpectedDate = styled.div`
-  height: 20px;
-
-  margin-top: 6px;
-
-  display: flex;
-  align-items: center;
-
-  color: #727272;
-
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 20px;
-
-  white-space: nowrap;
-`;
-
 /* =========================
    아래쪽 검정 박스
 ========================= */
@@ -330,43 +313,49 @@ export default function OrderCard({ order, onCancel, onRefresh }) {
   const steps = [
     {
       id: 1,
-      status: "RECEIVED",
+      status: "접수 완료",
       label: "접수 완료",
       completedTime: order.receivedAt,
     },
     {
       id: 2,
-      status: "ARRIVED_AT_HQ",
+      status: "상담 진행",
+      label: "상담 진행",
+      completedTime: order.consultingAt,
+    },
+    {
+      id: 3,
+      status: "본사 도착",
       label: "본사 도착",
       completedTime: order.hqArrivedAt,
     },
     {
-      id: 3,
-      status: "INSPECTING",
+      id: 4,
+      status: "제품 검수",
       label: "제품 검수",
       completedTime: order.inspectingAt,
     },
     {
-      id: 4,
-      status: "IN_PROGRESS",
+      id: 5,
+      status: "제작 진행",
       label: "제작 진행",
       completedTime: order.inProgressAt,
     },
     {
-      id: 5,
-      status: "COMPLETED",
+      id: 6,
+      status: "제작 완료",
       label: "제작 완료",
       completedTime: order.completedAt,
     },
     {
-      id: 6,
-      status: "SHIPPING",
+      id: 7,
+      status: "배송 중",
       label: "배송 중",
       completedTime: order.shippingAt,
     },
     {
-      id: 7,
-      status: "ARRIVED_AT_STORE",
+      id: 8,
+      status: "매장 도착",
       label: "매장 도착",
       completedTime: order.storeArrivedAt,
     },
@@ -386,19 +375,6 @@ export default function OrderCard({ order, onCancel, onRefresh }) {
       day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
-    });
-  };
-
-  // 예상 도착일은 시간까지 필요 없으면 날짜만 표시
-  const formatDate = (dateString) => {
-    if (!dateString) return "";
-
-    const date = new Date(dateString);
-
-    return date.toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
     });
   };
 
@@ -431,6 +407,12 @@ export default function OrderCard({ order, onCancel, onRefresh }) {
   // 예약 변경
   // =========================
   const handleReservationChange = async ({ date, time }) => {
+    console.log("handleReservationChange 진입:", {
+      date,
+      time,
+      order,
+    });
+
     try {
       const [year, month, day] = date.split(".");
 
@@ -440,19 +422,28 @@ export default function OrderCard({ order, onCancel, onRefresh }) {
         day.padStart(2, "0"),
       ].join("-");
 
-      const visitDate = `${formattedDate}T${time}:00`;
+      const formattedTime = time.replace(/^(오전|오후)\s*/, "");
 
-      await updateReservation(order.reservationId, {
+      const visitDate = `${formattedDate}T${formattedTime}:00`;
+
+      const payload = {
         reformId: order.reformId,
         storeId: order.storeId,
         visitDate,
-      });
+      };
+
+      console.log("예약 변경 payload:", payload);
+
+      await updateReservation(order.reservationId, payload);
+
+      console.log("예약 변경 성공");
 
       await onRefresh();
 
       setIsCalendarOpen(false);
     } catch (error) {
       console.error("예약 변경 실패:", error);
+      console.error("예약 변경 실패 응답:", error.response?.data);
     }
   };
 
@@ -533,12 +524,6 @@ export default function OrderCard({ order, onCancel, onRefresh }) {
                   </DateItem>
                 );
               })}
-
-              {order.estimatedStoreArrivalDate && (
-                <ExpectedDate>
-                  예상 도착일 {formatDate(order.estimatedStoreArrivalDate)}
-                </ExpectedDate>
-              )}
             </DateArea>
           </ProgressBox>
         </TopBox>

@@ -77,57 +77,45 @@ export default function InquiryPage() {
 
   const orderNumber = location.state?.orderNumber;
 
-  const handleSubmitInquiry = async (closeAccordion) => {
-    const content = inquiryText.trim();
-
-    if (!content) return;
-
-    if (!orderNumber) {
-      console.error("주문번호가 없습니다.");
-      return;
-    }
+  const handleSubmitInquiry = async () => {
+    if (!inquiryText.trim()) return;
 
     try {
-      await createInquiry(orderNumber, {
-        content,
+      const data = await createInquiry(orderNumber, {
+        content: inquiryText.trim(),
       });
 
-      console.log("문의 등록 성공");
+      console.log("문의 등록 성공:", data);
 
       setInquiryText("");
-
-      closeAccordion();
     } catch (error) {
       console.error("문의 등록 실패:", error);
       console.error("서버 응답:", error.response?.data);
     }
   };
-
   return (
     <Page>
       <AccordionList>
         <Accordion title="상담원에게 문의하기" dark>
-          {(closeAccordion) => (
-            <InquiryForm>
-              <TextArea
-                placeholder="문의하실 내용을 자세히 남겨주세요."
-                value={inquiryText}
-                onChange={(e) => setInquiryText(e.target.value)}
-              />
+          <InquiryForm>
+            <TextArea
+              placeholder="문의하실 내용을 자세히 남겨주세요."
+              value={inquiryText}
+              onChange={(e) => setInquiryText(e.target.value)}
+            />
 
-              <SubmitButtonArea>
-                <IntentButton
-                  variant="black"
-                  width="100%"
-                  height="44px"
-                  disabled={!inquiryText.trim()}
-                  onClick={() => handleSubmitInquiry(closeAccordion)}
-                >
-                  작성 완료
-                </IntentButton>
-              </SubmitButtonArea>
-            </InquiryForm>
-          )}
+            <SubmitButtonArea>
+              <IntentButton
+                variant="black"
+                width="100%"
+                height="44px"
+                disabled={!inquiryText.trim()}
+                onClick={handleSubmitInquiry}
+              >
+                작성 완료
+              </IntentButton>
+            </SubmitButtonArea>
+          </InquiryForm>
         </Accordion>
 
         <Accordion title="제품 상태에 대해 문의하고 싶어요.">

@@ -112,6 +112,7 @@ export default function LabEditionDetailPage() {
       <StoreSearchModal
         isOpen={isStoreModalOpen}
         onClose={() => setIsStoreModalOpen(false)}
+        mode="edition"
         editionId={product.id}
         onSelectComplete={(store) => {
           console.log("선택 매장:", store);

@@ -2,36 +2,52 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 const ReservationCompleteModal = ({ isOpen, onConfirm, onAutoRedirect }) => {
+  if (!isOpen) return null;
+
+  return (
+    <ReservationCompleteContent
+      onConfirm={onConfirm}
+      onAutoRedirect={onAutoRedirect}
+    />
+  );
+};
+
+const ReservationCompleteContent = ({ onConfirm, onAutoRedirect }) => {
   const [remainingSeconds, setRemainingSeconds] = useState(3);
 
   useEffect(() => {
-    if (!isOpen) return undefined;
-
     const interval = setInterval(() => {
-      setRemainingSeconds((prev) => prev - 1);
+      setRemainingSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+
+        return prev - 1;
+      });
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    if (remainingSeconds <= 0) {
+    const redirectTimer = setTimeout(() => {
       onAutoRedirect();
-    }
-  }, [isOpen, remainingSeconds, onAutoRedirect]);
+    }, 3000);
 
-  if (!isOpen) return null;
+    return () => {
+      clearInterval(interval);
+      clearTimeout(redirectTimer);
+    };
+  }, [onAutoRedirect]);
 
   return (
     <Overlay>
       <ModalCard>
         <TextGroup>
           <Title>예약이 완료되었습니다.</Title>
+
           <Description>
             {remainingSeconds}초 후 메인 화면으로 이동합니다.
           </Description>
         </TextGroup>
+
         <ConfirmButton onClick={onConfirm}>예약 주문 확인하기</ConfirmButton>
       </ModalCard>
     </Overlay>

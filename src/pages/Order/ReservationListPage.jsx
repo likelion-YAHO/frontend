@@ -38,7 +38,9 @@ const EmptyText = styled.p`
 
 export default function ReservationListPage({ orders, onCancel, onRefresh }) {
   const reservationOrders = orders.filter((order) => {
-    const isCancelled = order.currentStatus === "CANCELLED";
+    const isCancelled =
+      order.currentStatus === "CANCELLED" || order.currentStatus === "취소";
+
     const isPickedUp = Boolean(order.pickedUpAt);
 
     return !isCancelled && !isPickedUp;
