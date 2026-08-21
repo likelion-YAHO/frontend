@@ -1,5 +1,7 @@
 # MCM ATELIER
 
+**🔗 배포 링크**: [https://mcmheritage.netlify.app/](https://mcmheritage.netlify.app/)
+
 ## 📱 서비스 소개
 **MCM ATELIER**는 MCM의 업사이클링 헤리티지를 고객의 직접적인 창작과 오프라인 브랜드 경험으로 확장하는 참여형 AI 업사이클링 플랫폼입니다. AI 이미지 생성에 그치지 않고, 고객의 창작을 실제 MCM 제품과 매장 경험으로 연결하는 데 핵심 가치를 둡니다.
 
@@ -34,6 +36,44 @@
 **3단계 — 협업 확장**
 아티스트·패션·라이프스타일 브랜드와 공동 디자인, 한정 컬렉션, 전시 등으로 사업 확장
 
+## 🛠️ 기술 스택
+
+**Frontend**
+- React 19
+- Vite
+- JavaScript (JSX)
+
+**상태 관리**
+- React 기본 Hooks (`useState`) + `react-router-dom`의 `location.state`
+
+**라우팅**
+- React Router DOM v7
+
+**스타일링**
+- styled-components
+
+**API 통신**
+- Axios
+
+**애니메이션**
+- Framer Motion
+
+**기타**
+- JsBarcode (바코드 생성)
+
+**배포**
+- Netlify
+
+## 📸 스크린샷
+
+| 홈 | 업사이클 커스텀 |
+|---|---|
+| ![홈](./docs/screenshots/home.png) | ![업사이클 커스텀](./docs/screenshots/upcycle-custom.png) |
+
+| Lab Edition | MCM Lab 커스텀 |
+|---|---|
+| ![Lab Edition](./docs/screenshots/lab-edition.png) | ![MCM Lab 커스텀](./docs/screenshots/mcmlab-custom.png) |
+
 ---
 
 ## **🎯 Git Convention**
@@ -56,4 +96,14 @@
 - **`main`**: 배포 가능한 브랜치, 항상 배포 가능한 상태를 유지
 - **`develop`**: 다음 버전을 위한 개발 브랜치, 팀원들의 작업 결과물이 모이는 '중심점'
 - **`ui/#이슈번호/명칭`**: 화면 UI 구현이나 스타일링 작업을 할 때 사용
-  -
+  - _예: `ui/#12/login-form`_
+- **`api/#이슈번호/명칭`**: 데이터 통신, API 연동, 비즈니스 로직 구현 시 사용
+  - _예: `api/#45/fetch-user-profile`_
+
+## 🌊 Flow
+1. Issue 생성
+2. 최신 상태의 **`develop`** 에서 새 브랜치 생성
+3. 작업 완료 후 **`develop`**으로 Pull Request
+4. 팀원들에게 리뷰 요청
+5. 리뷰한 팀원이 **`develop`** 으로 병합
+6. 병합 후 작업자가 해당 브랜치 삭제
